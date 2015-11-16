@@ -12,10 +12,13 @@ int main()
 	// création de la fenêtre
 	sf::Vector2i screenDimensions(500, 500);
 	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Space Invaders!");
+    sf::FloatRect boundingBoxWindow (0,0,500,500);
 	window.setFramerateLimit(60);
 
 	int speed_myShip = 2;
     sf::Clock frameClock;
+
+    int speedAlien = 3;
 
     // Declare and load a texture
 	sf::Texture texture;
@@ -27,6 +30,7 @@ int main()
 	myShip.setTextureRect(sf::IntRect(150, 638, 73, 52));
 	myShip.setPosition(225, 400);
 
+
 	// Create first alien
 	Animation alien1;
 	alien1.setSpriteSheet(texture);
@@ -36,10 +40,9 @@ int main()
     animatedAlien1.setScale(0.5f, 0.5f);
     animatedAlien1.setPosition(10, 10);
 	Animation* currentAnimation1 = &alien1;
-
     int directionAlien1 = 1;
 
-    // Create second alien
+    //Create second alien
     //Animation alien2;
     //alien2.setSpriteSheet(texture);
     //alien2.addFrame(sf::IntRect(19, 134, 121, 80));
@@ -63,6 +66,7 @@ int main()
         animatedAlien1.play(*currentAnimation1);
         //animatedAlien2.play(*currentAnimation2);
 
+        // Move the spaceship
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
 			myShip.move(-speed_myShip, 0);
 		}
@@ -70,7 +74,18 @@ int main()
 			myShip.move(speed_myShip, 0);
 		}
 
-        animatedAlien1.move(directionAlien1, 0);
+        // Change direction of aliens when hits borders
+        if (animatedAlien1.getPosition().x > 430 || animatedAlien1.getPosition().x < 10 ) {
+            directionAlien1 = -1 * directionAlien1;
+            animatedAlien1.move(0, 30);
+
+        }
+        animatedAlien1.move(directionAlien1*speedAlien, 0);
+
+        // Shoot missile
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+
+        }
 
 		// effacement de la fenêtre en noir
 		window.clear(sf::Color::Black);
