@@ -18,7 +18,7 @@ int main()
 	int speed_myShip = 2;
     sf::Clock frameClock;
 
-    int speedAlien = 3;
+    int difficulty = 1;
 
     // Declare and load a texture
 	sf::Texture texture;
@@ -29,7 +29,6 @@ int main()
 	myShip.setTexture(texture);
 	myShip.setTextureRect(sf::IntRect(150, 638, 73, 52));
 	myShip.setPosition(225, 400);
-
 
 	// Create first alien
 	Animation alien1;
@@ -51,6 +50,10 @@ int main()
     //animatedAlien2.setScale(0.5f, 0.5f);
     //animatedAlien2.setPosition(10, 60);
     //Animation* currentAnimation2 = &alien2;
+
+    //Create missile
+    sf::RectangleShape missile(sf::Vector2f(5, 50));
+    missile.setFillColor(sf::Color::Black);
 
 	// Faire tourner le programme tant que la fenêtre n'a pas été fermée
 	while (window.isOpen()) {
@@ -80,18 +83,22 @@ int main()
             animatedAlien1.move(0, 30);
 
         }
-        animatedAlien1.move(directionAlien1*speedAlien, 0);
+        animatedAlien1.move(directionAlien1*difficulty, 0);
 
         // Shoot missile
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            missile.setFillColor(sf::Color::White);
+            missile.setPosition(myShip.getPosition().x + 34, myShip.getPosition().y-70);
         }
+        missile.move(0, -1);
 
 		// effacement de la fenêtre en noir
 		window.clear(sf::Color::Black);
 
 		// c'est ici qu'on dessine tout
 		window.draw(myShip);
+        window.draw(missile);
         animatedAlien1.update(frameTime);
 		window.draw(animatedAlien1);
         //animatedAlien2.update(frameTime);
