@@ -1,112 +1,320 @@
-#include "AnimatedSprite.hpp"
-#include "yemam.h"
 #include <iostream>
-#include <cstdlib>
-#include <string>
+#include <SFML/Graphics.hpp>
+#include <vector>
+#include <list>
+#include <stdexcept>
+#include "Ship.h"
+#include "Enemy.h"
+#include "Bullet.h"
+#include "WinScreen.h"
+#include "LoseScreen.h"
+#include "CollisionManager.h"
+#include "SoundManager.h"
 
 using namespace std;
-using namespace sf;
 
-int main()
-{
-	// création de la fenêtre
-	sf::Vector2i screenDimensions(500, 500);
-	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Space Invaders!");
-    sf::FloatRect boundingBoxWindow (0,0,500,500);
-	window.setFramerateLimit(60);
+#define WIDTH 800
+#define HEIGHT 600
+#define NUMBER_OF_ALIENS_PER_LINE 7
+#define NUMBER_OF_LINES 4
 
-	int speed_myShip = 2;
-    sf::Clock frameClock;
+int main(int, char *argv[]) {
 
-    int difficulty = 1;
+    const float shipSpeed = 200.f;
+    const int alienMaxSpeed = 1200;
+    const int alienMinSpeed = 500;
+    const int difficulty = 3;
+    const float bulletSpeed = 10.f;
+    bool gameOver=false;
+    bool winner = false;
+    int moveDown=0;
+    int globalDirection = +1;
 
-    // Declare and load a texture
-	sf::Texture texture;
-	texture.loadFromFile("sprite.gif");
 
-	// Create the spaceship
-	sf::Sprite myShip;
-	myShip.setTexture(texture);
-	myShip.setTextureRect(sf::IntRect(150, 638, 73, 52));
-	myShip.setPosition(225, 400);
+    //initialize random seed
+    srand (time(NULL));
 
-	// Create first alien
-	Animation alien1;
-	alien1.setSpriteSheet(texture);
-	alien1.addFrame(sf::IntRect(19, 14, 110, 81));
-	alien1.addFrame(sf::IntRect(165, 14, 110, 81));
-	AnimatedSprite animatedAlien1(sf::seconds(0.2), true, false);
-    animatedAlien1.setScale(0.5f, 0.5f);
-    animatedAlien1.setPosition(10, 10);
-	Animation* currentAnimation1 = &alien1;
-    int directionAlien1 = 1;
+    // Create the main window
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Space Invaders Clone");
+    window.setVerticalSyncEnabled(true);
 
-    //Create second alien
-    //Animation alien2;
-    //alien2.setSpriteSheet(texture);
-    //alien2.addFrame(sf::IntRect(19, 134, 121, 80));
-    //alien2.addFrame(sf::IntRect(165, 134, 121, 80));
-    //AnimatedSprite animatedAlien2(sf::seconds(0.2), true, false);
-    //animatedAlien2.setScale(0.5f, 0.5f);
-    //animatedAlien2.setPosition(10, 60);
-    //Animation* currentAnimation2 = &alien2;
+    //start background music
+    SoundManager music;
+    music.playBackgroundMusic();
 
-    //Create missile
-    sf::RectangleShape missile(sf::Vector2f(5, 50));
-    missile.setFillColor(sf::Color::Black);
+    //create background
+    sf::Sprite back;
+    sf::Texture star;
 
-	// Faire tourner le programme tant que la fenêtre n'a pas été fermée
-	while (window.isOpen()) {
-		// Traitement de tous les évènements de la fenêtre qui ont été générés depuis la dernière itération de la boucle
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			// fermeture de la fenêtre lorsque l'utilisateur le souhaite
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
+    // Load background to display
+    if(!star.loadFromFile("resources/stars.png"))
+        throw invalid_argument("Background not found!");
+    //create sprite and scale
+    back.setTexture(star);
 
-		sf::Time frameTime = frameClock.restart();
-        animatedAlien1.play(*currentAnimation1);
-        //animatedAlien2.play(*currentAnimation2);
+    //create win and lose screens
+    WinScreen win;
+    LoseScreen lose;
 
-        // Move the spaceship
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-			myShip.move(-speed_myShip, 0);
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-			myShip.move(speed_myShip, 0);
-		}
+    //create a bullet
+    Bullet bullet(0,bulletSpeed);
 
-        // Change direction of aliens when hits borders
-        if (animatedAlien1.getPosition().x > 430 || animatedAlien1.getPosition().x < 10 ) {
-            directionAlien1 = -1 * directionAlien1;
-            animatedAlien1.move(0, 30);
+    //create the ship
+    Ship myShip(0,shipSpeed);
+    myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
+    //create a an array of enemys
+    Enemy alienArray[NUMBER_OF_LINES][NUMBER_OF_ALIENS_PER_LINE];
+    for(int i=0; i<NUMBER_OF_LINES; i++) {
+        for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+            Enemy alien(i, j, alienMinSpeed);
+            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
+            alienArray[i][j] = alien;
         }
-        animatedAlien1.move(directionAlien1*difficulty, 0);
+    }
 
-        // Shoot missile
+    //main clock for fps
+    sf::Clock clock;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            missile.setFillColor(sf::Color::White);
-            missile.setPosition(myShip.getPosition().x + 34, myShip.getPosition().y-70);
+    //clock for aliens
+    sf::Clock alienClock;
+    alienClock.restart().asSeconds();
+
+    //clock for down movement
+    sf::Clock downClock;
+    downClock.restart().asSeconds();
+
+    //clock for bullet
+    sf::Clock bulletClock;
+    bulletClock.restart().asSeconds();
+
+    // Start the game loop
+    while (window.isOpen()) {
+        float deltaTime = clock.restart().asSeconds();
+
+        // Process events
+        sf::Event event;
+        while (window.pollEvent(event)) {
+
+            // Close window : exit
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+
+            // Close window : exit
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (gameOver) {
+                    // (re)start the game
+                    gameOver = false;
+                    winner=false;
+                    clock.restart();
+
+                    //reset aliens
+                    for(int i=0; i<NUMBER_OF_LINES; i++) {
+                        for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                            Enemy alien(i, j, alienMinSpeed);
+                            alien.setLocation(j * 75 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
+                            alienArray[i][j] = alien;
+                        }
+                    }
+
+                    //reset ship location
+                    myShip.setLocation(WIDTH/2, HEIGHT - myShip.getSprite().getGlobalBounds().height);
+                    myShip.respawn();
+
+                    //restart music
+                    music.playBackgroundMusic();
+                }
+            }
+
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+                if(!bullet.isAlive() && !gameOver) {
+                    bullet.spawn(true);
+                    bullet.setLocation(myShip.getSprite().getPosition().x+13,myShip.getSprite().getPosition().y-10);
+                    music.playLazer();
+                }
+            }
+
+            // Escape pressed : exit
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+                window.close();
+            }
         }
-        missile.move(0, -1);
 
-		// effacement de la fenêtre en noir
-		window.clear(sf::Color::Black);
+        // Clear screen
+        window.clear(sf::Color(0,0,0,255));
+        window.draw(back);
+        //check for movement of ship
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
+            if (myShip.getSprite().getPosition().x + myShip.getSprite().getGlobalBounds().width < WIDTH) {
+                //cout << sprite.getPosition().x << endl;
+                myShip.getSprite().move(shipSpeed * deltaTime, 0.f);
+            }
+        }
 
-		// c'est ici qu'on dessine tout
-		window.draw(myShip);
-        window.draw(missile);
-        animatedAlien1.update(frameTime);
-		window.draw(animatedAlien1);
-        //animatedAlien2.update(frameTime);
-        //window.draw(animatedAlien2);
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
+            if(myShip.getSprite().getPosition().x > 0.f) {
+                //cout << sprite.getPosition().x << endl;
+                myShip.getSprite().move(-shipSpeed * deltaTime, 0.f);
+            }
+        }
 
-		// fin de la frame courante, affichage de tout ce qu'on a dessiné
-		window.display();
-	}
+        //move aliens
+        sf::Time t = alienClock.getElapsedTime();
+        if(t.asSeconds() > 1) {
+            for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+                for (int i = 0; i < NUMBER_OF_LINES; i++) {
+                    alienArray[i][j].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 0.f);
+                }
+                alienClock.restart();
+            }
+        }
 
-	return 0;
+        // Get furthest alien ID on the side (left or right)
+        int lastAliveRight = 0;
+        int lastAliveLeft = NUMBER_OF_ALIENS_PER_LINE-1;
+        int lastAliveLine = 0;
+        if (globalDirection == 1) {
+            for (int j = NUMBER_OF_ALIENS_PER_LINE - 1; j > lastAliveRight-1; j--) {
+                for (int i = 0; i < NUMBER_OF_LINES; i++) {
+                    if (alienArray[i][j].isAlive()) {
+                        lastAliveRight = j;
+                        lastAliveLine = i;
+                    }
+                }
+            }
+        }
+        else if (globalDirection == -1) {
+            for (int j = 0; j <= lastAliveLeft; j++) {
+                for (int i = 0; i < NUMBER_OF_LINES; i++) {
+                    if (alienArray[i][j].isAlive() ) {
+                        lastAliveLeft = j;
+                        lastAliveLine = i;
+                    }
+                }
+            }
+        }
+
+        //test collisions between aliens and borders of the screen
+        if (alienArray[lastAliveLine][lastAliveRight].getSprite().getPosition().x + alienArray[lastAliveLine][lastAliveRight].getSprite().getGlobalBounds().width > WIDTH-50 && alienArray[lastAliveLine][lastAliveRight].isAlive()) {
+            globalDirection = -1 * globalDirection ;
+            for (int k = 0; k < NUMBER_OF_ALIENS_PER_LINE; k++) {
+                for (int l = 0; l < NUMBER_OF_LINES; l++) {
+                    alienArray[l][k].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 30);
+                }
+            }
+        }
+        if (alienArray[lastAliveLine][lastAliveLeft].getSprite().getPosition().x < 50 && alienArray[lastAliveLine][lastAliveLeft].isAlive()) {
+            globalDirection = -1 * globalDirection ;
+            for (int k = 0; k < NUMBER_OF_ALIENS_PER_LINE; k++) {
+                for (int l = 0; l < NUMBER_OF_LINES; l++) {
+                    alienArray[l][k].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 30);
+                }
+            }
+        }
+
+        sf::Time bc = bulletClock.getElapsedTime();
+        if(bc.asSeconds() > 1.0) {
+            if(bullet.isAlive() && !gameOver) {
+                //draw bullet
+                bullet.draw(window);
+                //move bullet
+                bullet.getSprite().move(0.f,-20);
+            }
+        }
+
+        //test collisions between aliens and ship
+        for(int i=0; i<NUMBER_OF_LINES; i++) {
+            for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                if (CollisionManager::collidesWith(myShip, alienArray[i][j]) && alienArray[i][j].isAlive()) {
+                    if (!gameOver) {
+                        music.playExplosion();
+                    }
+                    myShip.kill();
+                    winner = false;
+                    gameOver = true;
+                }
+            }
+        }
+
+        //test collisions between aliens and bottom of screen
+        for(int i=0; i<NUMBER_OF_LINES; i++) {
+            for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                if(alienArray[i][j].getSprite().getPosition().y+alienArray[i][j].getSprite().getGlobalBounds().height>HEIGHT && alienArray[i][j].isAlive()) {
+                    if (!gameOver) {
+                        music.playExplosion();
+                    }
+                    winner = false;
+                    gameOver = true;
+                }
+            }
+        }
+
+        //test collisions between bullet and aliens
+        for(int i=0; i<NUMBER_OF_LINES; i++) {
+            for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                if (CollisionManager::collidesWith(bullet, alienArray[i][j]) && alienArray[i][j].isAlive() && bullet.isAlive()) {
+                    music.playExplosion();
+                    alienArray[i][j].kill();
+                    bullet.kill();
+                }
+            }
+        }
+
+        int deadAliens=0;
+        //test for a winner
+        for(int i=0; i<NUMBER_OF_LINES; i++) {
+            for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+                if (!alienArray[i][j].isAlive()) {
+                    deadAliens++;
+                }
+                if (deadAliens == NUMBER_OF_ALIENS_PER_LINE*NUMBER_OF_LINES ) {
+                    if (!gameOver) {
+                        //music.playReward();
+                        winner = true;
+                    }
+                    gameOver = true;
+                }
+            }
+        }
+
+        //test collision with bullet and boundary
+        if(bullet.getSprite().getPosition().y < 0) {
+            bullet.kill();
+        }
+
+        //draw to screen
+        if(!gameOver) {
+            for(int i=0; i<NUMBER_OF_LINES; i++) {
+                for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                    if (alienArray[i][j].isAlive()) {
+                        alienArray[i][j].draw(window);
+                    }
+                }
+            }
+
+            if(myShip.isAlive()) {
+                //draw ship
+                myShip.draw(window);
+            }
+
+            // Update the window
+            window.display();
+        }
+        else {
+            music.pauseBackgroundMusic();
+            if(winner) {
+                win.draw(window);
+            }
+            else {
+                lose.draw(window);
+            }
+
+            // Update the window
+            window.display();
+        }
+
+    }
+
+        return EXIT_SUCCESS;
 }
