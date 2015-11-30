@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <list>
@@ -27,7 +28,7 @@ int main(int, char *argv[]) {
     const float bulletSpeed = 10.f;
     bool gameOver=false;
     bool winner = false;
-    int moveDown=0;
+    int moveDown=2;
     int globalDirection = +1;
 
 
@@ -35,7 +36,7 @@ int main(int, char *argv[]) {
     srand (time(NULL));
 
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Space Invaders Clone");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Space Invaders");
     window.setVerticalSyncEnabled(true);
 
     //start background music
@@ -80,10 +81,6 @@ int main(int, char *argv[]) {
     sf::Clock alienClock;
     alienClock.restart().asSeconds();
 
-    //clock for down movement
-    sf::Clock downClock;
-    downClock.restart().asSeconds();
-
     //clock for bullet
     sf::Clock bulletClock;
     bulletClock.restart().asSeconds();
@@ -107,13 +104,14 @@ int main(int, char *argv[]) {
                     // (re)start the game
                     gameOver = false;
                     winner=false;
+                    moveDown=2;
                     clock.restart();
 
                     //reset aliens
                     for(int i=0; i<NUMBER_OF_LINES; i++) {
                         for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
                             Enemy alien(i, j, alienMinSpeed);
-                            alien.setLocation(j * 75 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
+                            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
                             alienArray[i][j] = alien;
                         }
                     }
@@ -144,24 +142,22 @@ int main(int, char *argv[]) {
         // Clear screen
         window.clear(sf::Color(0,0,0,255));
         window.draw(back);
+
         //check for movement of ship
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
             if (myShip.getSprite().getPosition().x + myShip.getSprite().getGlobalBounds().width < WIDTH) {
-                //cout << sprite.getPosition().x << endl;
                 myShip.getSprite().move(shipSpeed * deltaTime, 0.f);
             }
         }
-
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
             if(myShip.getSprite().getPosition().x > 0.f) {
-                //cout << sprite.getPosition().x << endl;
                 myShip.getSprite().move(-shipSpeed * deltaTime, 0.f);
             }
         }
 
         //move aliens
         sf::Time t = alienClock.getElapsedTime();
-        if(t.asSeconds() > 1) {
+        if(t.asSeconds() > 1/log2(moveDown)) {
             for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                 for (int i = 0; i < NUMBER_OF_LINES; i++) {
                     alienArray[i][j].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 0.f);
@@ -198,6 +194,7 @@ int main(int, char *argv[]) {
         //test collisions between aliens and borders of the screen
         if (alienArray[lastAliveLine][lastAliveRight].getSprite().getPosition().x + alienArray[lastAliveLine][lastAliveRight].getSprite().getGlobalBounds().width > WIDTH-50 && alienArray[lastAliveLine][lastAliveRight].isAlive()) {
             globalDirection = -1 * globalDirection ;
+            moveDown += 0.5;
             for (int k = 0; k < NUMBER_OF_ALIENS_PER_LINE; k++) {
                 for (int l = 0; l < NUMBER_OF_LINES; l++) {
                     alienArray[l][k].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 30);
@@ -206,6 +203,7 @@ int main(int, char *argv[]) {
         }
         if (alienArray[lastAliveLine][lastAliveLeft].getSprite().getPosition().x < 50 && alienArray[lastAliveLine][lastAliveLeft].isAlive()) {
             globalDirection = -1 * globalDirection ;
+            moveDown += 0.5;
             for (int k = 0; k < NUMBER_OF_ALIENS_PER_LINE; k++) {
                 for (int l = 0; l < NUMBER_OF_LINES; l++) {
                     alienArray[l][k].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 30);
@@ -213,6 +211,7 @@ int main(int, char *argv[]) {
             }
         }
 
+        // Fire bullet
         sf::Time bc = bulletClock.getElapsedTime();
         if(bc.asSeconds() > 1.0) {
             if(bullet.isAlive() && !gameOver) {
@@ -261,9 +260,9 @@ int main(int, char *argv[]) {
             }
         }
 
-        int deadAliens=0;
         //test for a winner
-        for(int i=0; i<NUMBER_OF_LINES; i++) {
+        int deadAliens=0;
+        for(int i=0; i < NUMBER_OF_LINES; i++) {
             for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                 if (!alienArray[i][j].isAlive()) {
                     deadAliens++;

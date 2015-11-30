@@ -13,10 +13,12 @@ Bullet::Bullet(const int id,float speed)
     alive = false;
     
     //load a sprite
-    if(!texture.loadFromFile("resources/bullet.png"))
+    if(!texture.loadFromFile("resources/sprite.png"))
         throw invalid_argument("Bullet not foundd!");
     
     //scale
+    sprite.setTexture(texture);
+    sprite.setTextureRect(sf::IntRect(487, 394, 28, 49));
     sprite.scale(sf::Vector2f(0.3,0.3));
 }
 

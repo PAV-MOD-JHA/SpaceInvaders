@@ -22,7 +22,18 @@ Enemy::Enemy(int lineNumber, const int id, float sp) {
     
     //scale sprite and set texture so we know size
     sprite.setTexture(texture);
-    sprite.setTextureRect(sf::IntRect(19, 14, 110, 81));
+    if (lineNumber%4 == 0) {
+        sprite.setTextureRect(sf::IntRect(19, 14, 110, 81));
+    }
+    else if (lineNumber%4 == 1) {
+        sprite.setTextureRect(sf::IntRect(165, 14, 110, 81));
+    }
+    else if (lineNumber%4 == 2) {
+        sprite.setTextureRect(sf::IntRect(19, 134, 120, 80));
+    }
+    else {
+        sprite.setTextureRect(sf::IntRect(165, 134, 120, 80));
+    }
     sprite.scale(sf::Vector2f(0.3,0.3));
 }
 
