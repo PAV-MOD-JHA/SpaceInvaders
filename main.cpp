@@ -1,11 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <SFML/Graphics.hpp>
 #include "Ship.h"
 #include "Enemy.h"
 #include "Bullet.h"
-#include "WinScreen.h"
-#include "LoseScreen.h"
 #include "CollisionManager.h"
 #include "SoundManager.h"
 
@@ -14,20 +13,27 @@ using namespace std;
 #define WIDTH 800
 #define HEIGHT 600
 #define NUMBER_OF_ALIENS_PER_LINE 7
-#define NUMBER_OF_LINES 4
+#define NUMBER_OF_LINES 1
 
 int main()
 {
     const float shipSpeed = 200.f;
-    const int alienMaxSpeed = 1200;
+    const int alienMaxSpeed = 12000;
     const int alienMinSpeed = 500;
     int alienDownSpeed = 2;
     const float bulletSpeed = 10.f;
+    int globalDirection = +1;
+
     bool gameOver=false;
     bool winner = false;
     bool play = false;
-    int globalDirection = +1;
+
     int difficulty = 1;
+    int score = 0;
+    const int fixedScoreAlien = 100;
+    const int variableScoreAlien = 2;
+    int levelAchievedScore = 1000;
+    string highscore="0";
 
     // Create main window
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "HomeScreen");
@@ -82,55 +88,73 @@ int main()
     difficultyText.setString("Choose difficulty");
     difficultyText.setCharacterSize(44);
     difficultyText.setColor(sf::Color::White);
-    difficultyText.setPosition(50.f, 350.f);
+    difficultyText.setPosition(52.f, 370.f);
 
     sf::Text difficulty0;
     difficulty0.setFont(font);
     difficulty0.setString("1");
     difficulty0.setCharacterSize(44);
     difficulty0.setColor(sf::Color::White);
-    difficulty0.setPosition(350 + 50.f, 350.f);
+    difficulty0.setPosition(350 + 50.f, 370.f);
 
     sf::Text difficulty1;
     difficulty1.setFont(font);
     difficulty1.setString("2");
     difficulty1.setCharacterSize(44);
     difficulty1.setColor(sf::Color::White);
-    difficulty1.setPosition(425 + 50.f, 350.f);
+    difficulty1.setPosition(425 + 50.f, 370.f);
 
     sf::Text difficulty2;
     difficulty2.setFont(font);
     difficulty2.setString("3");
     difficulty2.setCharacterSize(44);
     difficulty2.setColor(sf::Color::White);
-    difficulty2.setPosition(500 + 50.f, 350.f);
+    difficulty2.setPosition(500 + 50.f, 370.f);
 
     sf::Text difficulty3;
     difficulty3.setFont(font);
     difficulty3.setString("4");
     difficulty3.setCharacterSize(44);
     difficulty3.setColor(sf::Color::White);
-    difficulty3.setPosition(575 + 50.f, 350.f);
+    difficulty3.setPosition(575 + 50.f, 370.f);
 
     sf::Text difficulty4;
     difficulty4.setFont(font);
     difficulty4.setString("5");
     difficulty4.setCharacterSize(44);
     difficulty4.setColor(sf::Color::White);
-    difficulty4.setPosition(650 + 50.f, 350.f);
+    difficulty4.setPosition(650 + 50.f, 370.f);
 
     sf::RectangleShape difficultyOutline;
     difficultyOutline.setSize(sf::Vector2f(50, 50));
     difficultyOutline.setOutlineColor(sf::Color::White);
     difficultyOutline.setFillColor(sf::Color::Transparent);
     difficultyOutline.setOutlineThickness(5);
-    difficultyOutline.setPosition(385, 354.f);
+    difficultyOutline.setPosition(385, 374.f);
 
-    // Create gameover screens
-    WinScreen win;
-    LoseScreen lose;
+    // Display current high score
+    ifstream highscoreFile ("highscores.txt");
+    string line;
+    if (highscoreFile.is_open()) {
+        while (getline(highscoreFile,line)) {
+            highscore = line;
+        }
+        highscoreFile.close();
+    }
+    else {
+        cout << "Unable to open highscore file";
+    }
 
-    // ----------------------- CREATE ALIENS AND SPACESHIP ------------------------- //
+    sf::Text highScoreText;
+    highScoreText.setFont(font);
+    highScoreText.setString("Highscore : "+highscore);
+    highScoreText.setCharacterSize(56);
+    highScoreText.setColor(sf::Color::Red);
+    highScoreText.setPosition(WIDTH/2 - highScoreText.getLocalBounds().width/2, 235.f);
+
+
+
+    // ----------------------- CREATE GAME SCREEN ------------------------- //
 
     // Create a bullet
     Bullet bullet(0,bulletSpeed);
@@ -139,19 +163,88 @@ int main()
     Ship myShip(0,shipSpeed);
     myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
-    // Create an array of an array of enemys
+    // Create an array of an array of enemies
     Enemy alienArray[NUMBER_OF_LINES][NUMBER_OF_ALIENS_PER_LINE];
     for(int i=0; i<NUMBER_OF_LINES; i++) {
         for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
             Enemy alien(i, j, alienMinSpeed);
-            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
+            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 20);
             alienArray[i][j] = alien;
         }
     }
 
+    // Create score display
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setString("Score :");
+    scoreText.setCharacterSize(24);
+    scoreText.setColor(sf::Color::White);
+    scoreText.setPosition(10,10);
+
+    sf::Text scoreLiveText;
+    scoreLiveText.setFont(font);
+    scoreLiveText.setString("0");
+    scoreLiveText.setCharacterSize(24);
+    scoreLiveText.setColor(sf::Color::White);
+    scoreLiveText.setPosition(90,10);
+
+
+    // ----------------------- CREATE GAMEOVER SCREEN ------------------------- //
+
+    sf::Text congratsText;
+    congratsText.setFont(font);
+    congratsText.setString("CONGRATULATIONS!");
+    congratsText.setCharacterSize(100);
+    congratsText.setColor(sf::Color::White);
+    congratsText.setPosition(WIDTH/2 - congratsText.getLocalBounds().width/2, 150);
+
+    sf::Text youWinText;
+    youWinText.setFont(font);
+    youWinText.setString("YOU WIN!");
+    youWinText.setCharacterSize(72);
+    youWinText.setColor(sf::Color::White);
+    youWinText.setPosition(WIDTH/2 - youWinText.getLocalBounds().width/2, 250);
+
+    sf::Text gameoverText;
+    gameoverText.setFont(font);
+    gameoverText.setString("GAME OVER!");
+    gameoverText.setCharacterSize(100);
+    gameoverText.setColor(sf::Color::White);
+    gameoverText.setPosition(WIDTH/2 - gameoverText.getLocalBounds().width/2, gameoverText.getLocalBounds().height - 20);
+
+    sf::Text youLoseText;
+    youLoseText.setFont(font);
+    youLoseText.setString("YOU LOSE!");
+    youLoseText.setCharacterSize(72);
+    youLoseText.setColor(sf::Color::White);
+    youLoseText.setPosition(WIDTH/2 - youLoseText.getLocalBounds().width/2, 250);
+
+    sf::Text continueText;
+    continueText.setFont(font);
+    continueText.setString("Click on Space to play a new game");
+    continueText.setCharacterSize(32);
+    continueText.setColor(sf::Color::Red);
+    continueText.setPosition(WIDTH/2 - continueText.getLocalBounds().width/2, 465);
+
+    sf::Text quitText;
+    quitText.setFont(font);
+    quitText.setString("Or click on Escape to exit the game");
+    quitText.setCharacterSize(32);
+    quitText.setColor(sf::Color::Red);
+    quitText.setPosition(WIDTH/2 - quitText.getLocalBounds().width/2, 500);
+
+    sf::Text newHighScoreText;
+    newHighScoreText.setFont(font);
+    newHighScoreText.setString("New high score!");
+    newHighScoreText.setCharacterSize(32);
+    newHighScoreText.setColor(sf::Color::Red);
+    newHighScoreText.setPosition(WIDTH/2 - newHighScoreText.getLocalBounds().width/2, 50);
+
+
+
     // ----------------------- CREATE MULTIPLE CLOCKS ------------------------- //
 
-    // Main clock for fps
+    // Main clock for 200
     sf::Clock clock;
 
     // Clock for alien movement
@@ -162,6 +255,11 @@ int main()
     sf::Clock bulletClock;
     bulletClock.restart().asSeconds();
 
+    // Clock for score
+    sf::Clock scoreClock;
+    scoreClock.restart().asSeconds();
+
+
     // ----------------------- START GAME LOOP ------------------------- //
 
     while (window.isOpen()) {
@@ -170,10 +268,17 @@ int main()
         // Process events
         sf::Event event;
         while (window.pollEvent(event)) {
+
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-                play=false;
+
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+                play = false;
+                if (gameOver) {
+                    window.close();
+                }
+            }
+
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
                 if (!bullet.isAlive() && !gameOver && play) {
                     bullet.spawn(true);
@@ -182,6 +287,12 @@ int main()
                 }
             }
 
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+                if (gameOver) {
+                    play = false;
+                }
+
+            }
         }
 
         window.clear();
@@ -189,21 +300,52 @@ int main()
 
         // If not ready to play
         if (!play) {
+
+            if (gameOver) {
+                for(int i=0; i<NUMBER_OF_LINES; i++) {
+                    for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                        Enemy alien(i, j, alienMinSpeed);
+                        alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 20);
+                        alienArray[i][j] = alien;
+                    }
+                }
+                myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
+                globalDirection = 1;
+            }
+            gameOver = false;
+            winner = false;
+
             // Get cursor position
             sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
+            // Refresh high score
+            ifstream highscoreFile ("highscores.txt");
+            string line;
+            if (highscoreFile.is_open()) {
+                while (getline(highscoreFile,line)) {
+                    highscore = line;
+                }
+                highscoreFile.close();
+            }
+            else {
+                cout << "Unable to open highscore file";
+            }
+            highScoreText.setString("Highscore : "+highscore);
+
+
             // Click on Start
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > startText.getPosition().x &&
-                mousePosition.x < startText.getPosition().x + startText.getLocalBounds().width &&
-                mousePosition.y > startText.getPosition().y &&
-                mousePosition.y < startText.getPosition().y + startText.getLocalBounds().height) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > startText.getPosition().x -5 &&
+                mousePosition.x < startText.getPosition().x + startText.getLocalBounds().width +5 &&
+                mousePosition.y > startText.getPosition().y -5 &&
+                mousePosition.y < startText.getPosition().y + startText.getLocalBounds().height +5) {
                 play = true;
+                scoreClock.restart().asSeconds();
             }
             // Click on Exit
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > exitText.getPosition().x &&
-                mousePosition.x < exitText.getPosition().x + exitText.getLocalBounds().width &&
-                mousePosition.y > exitText.getPosition().y &&
-                mousePosition.y < exitText.getPosition().y + exitText.getLocalBounds().height) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > exitText.getPosition().x -5 &&
+                mousePosition.x < exitText.getPosition().x + exitText.getLocalBounds().width +5 &&
+                mousePosition.y > exitText.getPosition().y -5 &&
+                mousePosition.y < exitText.getPosition().y + exitText.getLocalBounds().height +5) {
                 window.close();
             }
 
@@ -212,43 +354,38 @@ int main()
                 mousePosition.x < difficulty0.getPosition().x + difficulty0.getLocalBounds().width + 5 &&
                 mousePosition.y > difficulty0.getPosition().y - 5 &&
                 mousePosition.y < difficulty0.getPosition().y + difficulty0.getLocalBounds().height + 5) {
-                difficultyOutline.setPosition(385, 354.f);
+                difficultyOutline.setPosition(385, 374.f);
                 difficulty = 1;
             }
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > difficulty1.getPosition().x - 5 &&
                 mousePosition.x < difficulty1.getPosition().x + difficulty1.getLocalBounds().width + 5 &&
                 mousePosition.y > difficulty1.getPosition().y - 5 &&
                 mousePosition.y < difficulty1.getPosition().y + difficulty1.getLocalBounds().height + 5) {
-                difficultyOutline.setPosition(460, 354.f);
+                difficultyOutline.setPosition(460, 374.f);
                 difficulty = 2;
             }
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > difficulty2.getPosition().x - 5 &&
                 mousePosition.x < difficulty2.getPosition().x + difficulty2.getLocalBounds().width + 5 &&
                 mousePosition.y > difficulty2.getPosition().y - 5 &&
                 mousePosition.y < difficulty2.getPosition().y + difficulty2.getLocalBounds().height + 5) {
-                difficultyOutline.setPosition(535, 354.f);
+                difficultyOutline.setPosition(535, 374.f);
                 difficulty = 3;
             }
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > difficulty3.getPosition().x - 5 &&
                 mousePosition.x < difficulty3.getPosition().x + difficulty3.getLocalBounds().width + 5 &&
                 mousePosition.y > difficulty3.getPosition().y - 5 &&
                 mousePosition.y < difficulty3.getPosition().y + difficulty3.getLocalBounds().height + 5) {
-                difficultyOutline.setPosition(610, 354.f);
+                difficultyOutline.setPosition(610, 374.f);
                 difficulty = 4;
             }
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > difficulty4.getPosition().x - 5 &&
                 mousePosition.x < difficulty4.getPosition().x + difficulty4.getLocalBounds().width + 5 &&
                 mousePosition.y > difficulty4.getPosition().y - 5 &&
                 mousePosition.y < difficulty4.getPosition().y + difficulty4.getLocalBounds().height + 5) {
-                difficultyOutline.setPosition(685, 354.f);
+                difficultyOutline.setPosition(685, 374.f);
                 difficulty = 5;
             }
 
-            // Clear screen
-            //window.clear();
-
-            // Draw our strings
-            //window.draw(back);
             window.draw(titleText);
             window.draw(startText);
             window.draw(difficultyText);
@@ -258,6 +395,7 @@ int main()
             window.draw(difficulty3);
             window.draw(difficulty4);
             window.draw(difficultyOutline);
+            window.draw(highScoreText);
             window.draw(exitText);
         }
 
@@ -380,6 +518,10 @@ int main()
                         music.playExplosion();
                         alienArray[i][j].kill();
                         bullet.kill();
+                        score += fixedScoreAlien*difficulty;
+                        if (scoreClock.getElapsedTime().asSeconds() < 120)
+                            score += (120 - scoreClock.getElapsedTime().asSeconds())*variableScoreAlien;
+                        scoreLiveText.setString(std::to_string(score));
                     }
                 }
             }
@@ -415,14 +557,34 @@ int main()
                 }
                 if (myShip.isAlive())
                     myShip.draw(window);
+                window.draw(scoreText);
+                window.draw(scoreLiveText);
             }
             else {
                 music.pauseBackgroundMusic();
-                play = false;
-                if (winner)
-                    win.draw(window);
-                else
-                    lose.draw(window);
+                if (winner) {
+                    window.draw(youWinText);
+                    window.draw(congratsText);
+                }
+                else {
+                    window.draw(youLoseText);
+                    window.draw(gameoverText);
+                }
+                if (score > std::stoi(highscore)) {
+                    window.draw(newHighScoreText);
+                    ofstream highscoreFile ("highscores.txt");
+                    if (highscoreFile.is_open()) {
+                        highscoreFile.clear();
+                        highscoreFile << to_string(score+levelAchievedScore*difficulty);
+                        highscoreFile.close();
+                    }
+                    else {
+                        cout << "Unable to open highscore file";
+                    }
+                }
+                score = 0;
+                window.draw(continueText);
+                window.draw(quitText);
             }
         }
 
