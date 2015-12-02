@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "Ship.h"
 #include "Enemy.h"
+#include "Boss.h"
 #include "Bullet.h"
 #include "WinScreen.h"
 #include "LoseScreen.h"
@@ -74,12 +75,20 @@ int main(int, char *argv[]) {
         }
     }
 
+	// Create a Boss >>>> to be changed
+	Boss BigAlien(0, alienMinSpeed);
+	BigAlien.setLocation(WIDTH/2, HEIGHT /2);
+
     //main clock for fps
     sf::Clock clock;
 
     //clock for aliens
     sf::Clock alienClock;
     alienClock.restart().asSeconds();
+
+	//clock for Boss
+	sf::Clock BigAlienClock;
+	BigAlienClock.restart().asSeconds();
 
     //clock for bullet
     sf::Clock bulletClock;
@@ -115,6 +124,9 @@ int main(int, char *argv[]) {
                             alienArray[i][j] = alien;
                         }
                     }
+
+					//reset Boss location >>>> to be changed
+					BigAlien.setLocation(WIDTH / 2, HEIGHT/2);
 
                     //reset ship location
                     myShip.setLocation(WIDTH/2, HEIGHT - myShip.getSprite().getGlobalBounds().height);
@@ -260,14 +272,14 @@ int main(int, char *argv[]) {
             }
         }
 
-        //test for a winner
+        //test for a winner >>>>> TBC BOSS
         int deadAliens=0;
         for(int i=0; i < NUMBER_OF_LINES; i++) {
             for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                 if (!alienArray[i][j].isAlive()) {
                     deadAliens++;
                 }
-                if (deadAliens == NUMBER_OF_ALIENS_PER_LINE*NUMBER_OF_LINES ) {
+                if (deadAliens == NUMBER_OF_ALIENS_PER_LINE*NUMBER_OF_LINES && (BigAlien.isAlive()==false || BigAlien.isActivated() == false)) {
                     if (!gameOver) {
                         //music.playReward();
                         winner = true;
@@ -281,6 +293,15 @@ int main(int, char *argv[]) {
         if(bullet.getSprite().getPosition().y < 0) {
             bullet.kill();
         }
+
+		//>>> Boss Collisions and movement <<<
+
+		//Move Boss
+		//sf::Time tb = BigAlienClock.getElapsedTime();
+//		if (tb.asSeconds() > 1 (moveDown)) {
+//			alienArray[i][j].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 0.f);
+//				BigAlienClock.restart();
+//		}
 
         //draw to screen
         if(!gameOver) {
@@ -296,6 +317,12 @@ int main(int, char *argv[]) {
                 //draw ship
                 myShip.draw(window);
             }
+
+			// >>>>>>> to be changed for the boss to arrive when we want
+			if (BigAlien.isAlive() && BigAlien.isActivated()) {
+				//draw Boss
+				BigAlien.draw(window);
+			}
 
             // Update the window
             window.display();
@@ -317,4 +344,3 @@ int main(int, char *argv[]) {
 
         return EXIT_SUCCESS;
 }
-// coucou hugo
