@@ -11,14 +11,10 @@ set(SOURCE_FILES
         CollisionManager.h
         Enemy.cpp
         Enemy.h
-        LoseScreen.cpp
-        LoseScreen.h
         Ship.cpp
         Ship.h
         SoundManager.cpp
         SoundManager.h
-        WinScreen.cpp
-        WinScreen.h
         Animation.cpp
         Animation.hpp
         AnimatedSprite.cpp
