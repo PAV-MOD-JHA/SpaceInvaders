@@ -31,6 +31,7 @@ int main(int, char *argv[]) {
     bool winner = false;
     int moveDown=2;
     int globalDirection = +1;
+	int bossDirection = +1;
 
 
     //initialize random seed
@@ -272,7 +273,7 @@ int main(int, char *argv[]) {
             }
         }
 
-        //test for a winner >>>>> TBC BOSS
+        //test for a winner
         int deadAliens=0;
         for(int i=0; i < NUMBER_OF_LINES; i++) {
             for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -296,12 +297,26 @@ int main(int, char *argv[]) {
 
 		//>>> Boss Collisions and movement <<<
 
-		//Move Boss
-		//sf::Time tb = BigAlienClock.getElapsedTime();
-//		if (tb.asSeconds() > 1 (moveDown)) {
-//			alienArray[i][j].getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * globalDirection * deltaTime, 0.f);
-//				BigAlienClock.restart();
-//		}
+		// activate boss
+		if (alienArray[0][1].getSprite().getPosition().y > HEIGHT / 3) {
+			BigAlien.activate();
+		}
+
+		//Move Boss >>>> TO be CHANGED §§§§
+		sf::Time tb = BigAlienClock.getElapsedTime();
+		if (tb.asSeconds() > 1) {
+			BigAlien.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0.f);
+			BigAlienClock.restart();
+		}
+
+		// test collisions Between boss and borders of the screen >>> Not good yet
+		if ((BigAlien.isAlive() && BigAlien.isActivated()) &&  (BigAlien.getSprite().getPosition().x +BigAlien.getSprite().getGlobalBounds().width > WIDTH - 50 || BigAlien.getSprite().getPosition().x < WIDTH + 20) ) {
+			bossDirection = -1 * bossDirection;
+			BigAlien.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 30);
+		}
+	
+		// test collisions between boss and bullets
+
 
         //draw to screen
         if(!gameOver) {
@@ -318,7 +333,6 @@ int main(int, char *argv[]) {
                 myShip.draw(window);
             }
 
-			// >>>>>>> to be changed for the boss to arrive when we want
 			if (BigAlien.isAlive() && BigAlien.isActivated()) {
 				//draw Boss
 				BigAlien.draw(window);
