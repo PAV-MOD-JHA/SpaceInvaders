@@ -164,6 +164,13 @@ int main()
     // Create a bullet
     Bullet bullet(0,bulletSpeed);
 
+	//Create an array of Bullets for the aliens
+	//Bullet bulletArray[NUMBER_OF_ALIENS_PER_LINE];
+	//for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+	//	Bullet bulletA(0, bulletSpeed);
+	//	bulletArray[j] = bulletA;
+	//}
+
     // Create the ship
     Ship myShip(0,shipSpeed);
     myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
@@ -265,6 +272,10 @@ int main()
     // Clock for alien movement
     sf::Clock alienClock;
     alienClock.restart().asSeconds();
+
+	// Clock for alien fire
+	//sf::Clock alienFireClock;
+	//alienClock.restart().asSeconds();
 
 	//Clock for Boss
 	sf::Clock bossClock;
@@ -499,6 +510,19 @@ int main()
                     }
                 }
             }
+
+			// Alien Fire bullets >>> Hugo to be continued
+//			sf::Time afc = alienFireClock.getElapsedTime();
+//			if (bc.asSeconds() > 1.0) {
+//				for (int j = 0; a < NUMBER_OF_ALIENS_PER_LINE; j++) {
+//					if (alienbullet.isAlive() && !gameOver) {
+						//draw bullet
+//						bullet.draw(window);
+						//move bullet
+//						bullet.getSprite().move(0.f, -20);
+//					}
+//				}
+//			}
 
             // Fire bullet
             sf::Time bc = bulletClock.getElapsedTime();
