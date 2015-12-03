@@ -35,6 +35,7 @@ int main()
     int score = 0;
     const int fixedScoreAlien = 100;
     const int variableScoreAlien = 2;
+	const int bossPremium = 5;
     int levelAchievedScore = 1000;
     string highscore="0";
 
@@ -321,8 +322,10 @@ int main()
                     }
                 }
 				//Reset Boss location
-                boss.setLocation(WIDTH / 2, boss.getSprite().getGlobalBounds().height / 2 + 50);
-                
+				Boss boss2(0, alienMinSpeed);
+				boss = boss2;
+				boss.setLocation(WIDTH / 2, boss.getSprite().getGlobalBounds().height / 2 + 50);
+
 				//Reset ship
 				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
@@ -565,6 +568,15 @@ int main()
 			}
 	
 			// test collisions between boss and bullets
+			if (CollisionManager::collidesWith(bullet, boss) && boss.isAlive() && boss.isActivated() &&	bullet.isAlive()) {
+				music.playExplosion();
+				boss.kill();
+				bullet.kill();
+				score += fixedScoreAlien*difficulty*bossPremium;
+				if (scoreClock.getElapsedTime().asSeconds() < 120)
+					score += (120 - scoreClock.getElapsedTime().asSeconds())*variableScoreAlien;
+				scoreLiveText.setString(std::to_string(score));
+			}
 
 
 			//test for a winner
