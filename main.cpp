@@ -9,6 +9,7 @@
 #include "Bullet.h"
 #include "CollisionManager.h"
 #include "SoundManager.h"
+#include "Barrier.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ using namespace std;
 int main()
 {
     const float shipSpeed = 200.f;
-    const int alienMaxSpeed = 10000;
+    const int alienMaxSpeed = 1000;
     const int alienMinSpeed = 500;
     int alienDownSpeed = 2;
     const float bulletSpeed = 10.f;
@@ -45,7 +46,7 @@ int main()
 
     //start background music
     SoundManager music;
-    music.playBackgroundMusic();
+    //music.playBackgroundMusic();
 
     // Create background
     sf::Sprite back;
@@ -196,6 +197,12 @@ int main()
     scoreLiveText.setColor(sf::Color::White);
     scoreLiveText.setPosition(90,10);
 
+    // Create barriers
+    Barrier barrier1(sf::Vector2f(140, 480));
+    Barrier barrier2(sf::Vector2f(280, 480));
+    Barrier barrier3(sf::Vector2f(420, 480));
+    Barrier barrier4(sf::Vector2f(560, 480));
+
 
     // ----------------------- CREATE GAMEOVER SCREEN ------------------------- //
 
@@ -321,6 +328,7 @@ int main()
                         alienArray[i][j] = alien;
                     }
                 }
+				
 				//Reset Boss location
 				Boss boss2(0, alienMinSpeed);
 				boss = boss2;
@@ -528,6 +536,16 @@ int main()
                 }
             }
 
+            // Test collisions between aliens and barriers
+            for (int i = 0; i < NUMBER_OF_LINES; i++) {
+                for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+                    if (barrier1.knockedBy(alienArray[i][j]) || barrier2.knockedBy(alienArray[i][j]) || barrier3.knockedBy(alienArray[i][j]) || barrier4.knockedBy(alienArray[i][j])) {
+                        gameOver = true;
+                        winner = false;
+                    }
+                }
+            }
+
             //test collisions between bullet and aliens
             for (int i = 0; i < NUMBER_OF_LINES; i++) {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -578,6 +596,16 @@ int main()
 				scoreLiveText.setString(std::to_string(score));
 			}
 
+            //test collision with bullet and boundary
+            if (bullet.getSprite().getPosition().y < 0) {
+                bullet.kill();
+            }
+
+            // Test collisions between barriers and bullets
+            barrier1.strikeWith(bullet);
+            barrier2.strikeWith(bullet);
+            barrier3.strikeWith(bullet);
+            barrier4.strikeWith(bullet);
 
 			//test for a winner
 			int deadAliens = 0;
@@ -596,11 +624,6 @@ int main()
 				}
 			}
 
-			//test collision with bullet and boundary
-			if (bullet.getSprite().getPosition().y < 0) {
-				bullet.kill();
-			}
-
 			//draw to screen
 			if (!gameOver) {
 				for (int i = 0; i < NUMBER_OF_LINES; i++) {
@@ -609,11 +632,19 @@ int main()
 							alienArray[i][j].draw(window);
 					}
 				}
+
 				if (boss.isAlive() && boss.isActivated()) {
                     boss.draw(window);
 				}
+
 				if (myShip.isAlive())
 					myShip.draw(window);
+
+                window.draw(barrier1);
+                window.draw(barrier2);
+                window.draw(barrier3);
+                window.draw(barrier4);
+
 				window.draw(scoreText);
 				window.draw(scoreLiveText);
 			}

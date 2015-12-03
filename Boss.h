@@ -18,6 +18,7 @@ public:
 	Boss();
 	Boss(const int, float);
 	void activate();
+	void deactivate();
 	bool isActivated();
 
 protected:
