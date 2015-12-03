@@ -22,7 +22,7 @@ class Enemy
         bool isAlive();
         float getSpeed() const;
         void draw(sf::RenderWindow &win);
-    private:
+    protected:
         sf::Sprite sprite;
         sf::Texture texture;
         bool alive;
