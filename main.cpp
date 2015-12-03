@@ -551,7 +551,7 @@ int main()
 				}
 			}
 
-			//Move Boss -- bouge tout les 1/ln(int al�atoire entre 1 et 10)
+			//Move Boss -- bouge tout les 1/ln(int aleatoire entre 1 et 10)
 			sf::Time tb = bossClock.getElapsedTime();
 			if (tb.asSeconds() > 1/(log2(rand()%(9)+1)) && boss.isActivated() ){
 				boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0.f);

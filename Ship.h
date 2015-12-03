@@ -13,10 +13,15 @@
 
 class Ship : public Ufo
 {
-public:
-    //constructor sets ID number, loads sprite
-    Ship(const int,float);
-    void respawn();
+    public:
+        //constructor sets ID number, loads sprite
+        Ship(const int,float);
+        void respawn();
+        void getShot();
+        bool isAlive();
+
+    private:
+        int lifePoints;
 };
 
 #endif
