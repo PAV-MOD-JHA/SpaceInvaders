@@ -1,15 +1,15 @@
 //
-//  Enemy.cpp
+//  Alien.cpp
 //
 
-#include "Enemy.h"
+#include "Alien.h"
 #include <iostream>
 #include <stdexcept>
 
 using namespace std;
 
 //constructor sets ID number, loads sprite
-Enemy::Enemy(int lineNumber, const int id, float sp) {
+Alien::Alien(int lineNumber, const int id, float sp) {
     //set alive
     alive = true;
 
@@ -36,31 +36,3 @@ Enemy::Enemy(int lineNumber, const int id, float sp) {
     }
     sprite.scale(sf::Vector2f(0.3,0.3));
 }
-
-sf::Sprite & Enemy::getSprite() {
-    return sprite;
-}
-
-void Enemy::setLocation(float xpos, float ypos) {
-    sprite.setPosition(xpos,ypos);
-}
-
-void Enemy::kill() {
-    alive = false;
-}
-
-bool Enemy::isAlive() {
-    return alive;
-}
-
-void Enemy::draw(sf::RenderWindow &win) {
-    //set texture
-    sprite.setTexture(texture);
-    //draw
-    win.draw(sprite);
-}
-
-float Enemy::getSpeed() const {
-    return speed;
-}
-

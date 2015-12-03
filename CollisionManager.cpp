@@ -4,7 +4,7 @@
 
 #include "CollisionManager.h"
 
-bool CollisionManager::collidesWith(Ship &obj1, Enemy &obj2)
+bool CollisionManager::collidesWith(Ship &obj1, Ufo &obj2)
 {
     //get the bounding box of the ship
     sf::FloatRect ship;
@@ -31,7 +31,7 @@ bool CollisionManager::collidesWith(Ship &obj1, Enemy &obj2)
     
 }
 
-bool CollisionManager::collidesWith(Bullet &obj1, Enemy &obj2)
+bool CollisionManager::collidesWith(Bullet &obj1, Ufo &obj2)
 {
     //get the bounding box of the ship
     sf::FloatRect bullet;

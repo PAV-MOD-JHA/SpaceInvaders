@@ -1,21 +1,21 @@
 //
-//  Enemy.h
+//  Ufo.h
 //
 
-#ifndef SpriteMove_Enemy_h
-#define SpriteMove_Enemy_h
+#ifndef SpriteMove_Ufo_h
+#define SpriteMove_Ufo_h
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 
-class Enemy
+class Ufo
 {
     public:
         //constructor sets ID number, loads sprite
-        Enemy(){};
-        Enemy(const int, int,float);
+        Ufo(){};
+        Ufo(const int, int,float);
         sf::Sprite & getSprite();
         void setLocation(float,float);
         void kill();
