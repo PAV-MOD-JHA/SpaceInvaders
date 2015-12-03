@@ -13,12 +13,12 @@ using namespace std;
 #define WIDTH 800
 #define HEIGHT 600
 #define NUMBER_OF_ALIENS_PER_LINE 7
-#define NUMBER_OF_LINES 1
+#define NUMBER_OF_LINES 4
 
 int main()
 {
     const float shipSpeed = 200.f;
-    const int alienMaxSpeed = 12000;
+    const int alienMaxSpeed = 1200;
     const int alienMinSpeed = 500;
     int alienDownSpeed = 2;
     const float bulletSpeed = 10.f;
@@ -291,7 +291,6 @@ int main()
                 if (gameOver) {
                     play = false;
                 }
-
             }
         }
 
