@@ -15,7 +15,7 @@ class Boss : public Ufo
 {
 public:
 	//constructor sets ID number, loads sprite
-	Boss() {};
+	Boss();
 	Boss(const int, float);
 	void activate();
 	bool isActivated();

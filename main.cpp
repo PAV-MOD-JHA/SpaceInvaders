@@ -15,12 +15,12 @@ using namespace std;
 #define WIDTH 800
 #define HEIGHT 600
 #define NUMBER_OF_ALIENS_PER_LINE 7
-#define NUMBER_OF_LINES 1
+#define NUMBER_OF_LINES 4
 
 int main()
 {
     const float shipSpeed = 200.f;
-    const int alienMaxSpeed = 12000;
+    const int alienMaxSpeed = 10000;
     const int alienMinSpeed = 500;
     int alienDownSpeed = 2;
     const float bulletSpeed = 10.f;
@@ -177,8 +177,8 @@ int main()
     }
 
 	// Create a Boss
-	Boss Boss(0, alienMinSpeed);
-	Boss.setLocation(WIDTH/2, Boss.getSprite().getGlobalBounds().height / 2);
+	Boss boss(0, alienMinSpeed);
+    boss.setLocation(WIDTH/2, boss.getSprite().getGlobalBounds().height / 2 + 50);
 
     // Create score display
     sf::Text scoreText;
@@ -259,8 +259,8 @@ int main()
     alienClock.restart().asSeconds();
 
 	//Clock for Boss
-	sf::Clock BossClock;
-	BossClock.restart().asSeconds();
+	sf::Clock bossClock;
+	bossClock.restart().asSeconds();
 
     // Clock for bullet
     sf::Clock bulletClock;
@@ -321,10 +321,11 @@ int main()
                     }
                 }
 				//Reset Boss location
-				Boss.setLocation(WIDTH / 2, Boss.getSprite().getGlobalBounds().height / 2);
+                boss.setLocation(WIDTH / 2, boss.getSprite().getGlobalBounds().height / 2 + 50);
                 
 				//Reset ship
 				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
+
                 globalDirection = 1;
             }
             gameOver = false;
@@ -515,8 +516,7 @@ int main()
             //test collisions between aliens and bottom of screen
             for (int i = 0; i < NUMBER_OF_LINES; i++) {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
-                    if (alienArray[i][j].getSprite().getPosition().y +
-                        alienArray[i][j].getSprite().getGlobalBounds().height > HEIGHT && alienArray[i][j].isAlive()) {
+                    if (alienArray[i][j].getSprite().getPosition().y + alienArray[i][j].getSprite().getGlobalBounds().height > HEIGHT && alienArray[i][j].isAlive()) {
                         if (!gameOver)
                             music.playExplosion();
                         winner = false;
@@ -543,25 +543,25 @@ int main()
 
 			//>>> Boss Collisions and movement <<<
 			// activate boss
-			if (t.asSeconds() > 0,5 && Boss.isActivated()== false) {
+			if (!boss.isActivated()) {
 				for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
-					if (alienArray[0][j].getSprite().getPosition().y > 100) {
-						Boss.activate();
+					if (alienArray[0][j].getSprite().getPosition().y > 150) {
+                        boss.activate();
 					}
 				}
 			}
 
-			//Move Boss -- bouge tout les 1/ln(int aléatoire entre 1 et 10)
-			sf::Time tb = BossClock.getElapsedTime();
-			if (tb.asSeconds() > 1/(log2(rand()%(9)+1)) ){
-				Boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0.f);
-				BossClock.restart();
+			//Move Boss -- bouge tout les 1/ln(int alï¿½atoire entre 1 et 10)
+			sf::Time tb = bossClock.getElapsedTime();
+			if (tb.asSeconds() > 1/(log2(rand()%(9)+1)) && boss.isActivated() ){
+				boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0.f);
+				bossClock.restart();
 			}
 
 			// test collisions Between boss and borders of the screen
-			if (Boss.isAlive() && Boss.isActivated() &&  (Boss.getSprite().getPosition().x +Boss.getSprite().getGlobalBounds().width > WIDTH - 50 || Boss.getSprite().getPosition().x < 20) ) {
+			if (boss.isAlive() && boss.isActivated() &&  (boss.getSprite().getPosition().x +boss.getSprite().getGlobalBounds().width > WIDTH - 50 || boss.getSprite().getPosition().x < 50) ) {
 				bossDirection = -1 * bossDirection;
-				Boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0);
+                boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0);
 			}
 	
 			// test collisions between boss and bullets
@@ -574,7 +574,7 @@ int main()
 					if (!alienArray[i][j].isAlive()) {
 						deadAliens++;
 					}
-					if (deadAliens == NUMBER_OF_ALIENS_PER_LINE * NUMBER_OF_LINES) {
+					if (deadAliens == NUMBER_OF_ALIENS_PER_LINE * NUMBER_OF_LINES && !boss.isAlive()) {
 						if (!gameOver) {
 							music.playReward();
 							winner = true;
@@ -597,9 +597,8 @@ int main()
 							alienArray[i][j].draw(window);
 					}
 				}
-				if (Boss.isAlive() && Boss.isActivated()) {
-					//draw Boss
-					Boss.draw(window);
+				if (boss.isAlive() && boss.isActivated()) {
+                    boss.draw(window);
 				}
 				if (myShip.isAlive())
 					myShip.draw(window);
@@ -637,5 +636,5 @@ int main()
 		window.display();
 	}
 
-return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
