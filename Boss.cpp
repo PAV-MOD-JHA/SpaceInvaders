@@ -33,6 +33,10 @@ void Boss::activate() {
 	activated = true;
 }
 
+void Boss::deactivate() {
+	activated = false;
+}
+
 bool Boss::isActivated() {
 	return activated;
 }

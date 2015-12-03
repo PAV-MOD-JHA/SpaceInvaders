@@ -11,6 +11,7 @@ using namespace std;
 //constructor sets ID number, loads sprite
 Ship::Ship(const int id,float speed) {
     alive = true;
+    lifePoints = 3;
 
     // Load a Ship to display
     if (!texture.loadFromFile("resources/sprite.png"))
