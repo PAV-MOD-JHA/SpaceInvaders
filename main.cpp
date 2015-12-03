@@ -4,8 +4,10 @@
 #include <vector>
 #include <list>
 #include <stdexcept>
+#include <cstdlib>
 #include "Ship.h"
-#include "Enemy.h"
+#include "Alien.h"
+#include "Boss.h"
 #include "Bullet.h"
 #include "WinScreen.h"
 #include "LoseScreen.h"
@@ -30,6 +32,7 @@ int main(int, char *argv[]) {
     bool winner = false;
     int moveDown=2;
     int globalDirection = +1;
+	int bossDirection = +1;
 
 
     //initialize random seed
@@ -64,15 +67,19 @@ int main(int, char *argv[]) {
     Ship myShip(0,shipSpeed);
     myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
-    //create a an array of enemys
-    Enemy alienArray[NUMBER_OF_LINES][NUMBER_OF_ALIENS_PER_LINE];
+    //create a an array of Aliens
+    Alien alienArray[NUMBER_OF_LINES][NUMBER_OF_ALIENS_PER_LINE];
     for(int i=0; i<NUMBER_OF_LINES; i++) {
         for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
-            Enemy alien(i, j, alienMinSpeed);
+            Alien alien(i, j, alienMinSpeed);
             alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
             alienArray[i][j] = alien;
         }
     }
+
+	// Create a Boss
+	Boss Boss(0, alienMinSpeed);
+	Boss.setLocation(WIDTH/2, Boss.getSprite().getGlobalBounds().height / 2);
 
     //main clock for fps
     sf::Clock clock;
@@ -80,6 +87,10 @@ int main(int, char *argv[]) {
     //clock for aliens
     sf::Clock alienClock;
     alienClock.restart().asSeconds();
+
+	//clock for Boss
+	sf::Clock BossClock;
+	BossClock.restart().asSeconds();
 
     //clock for bullet
     sf::Clock bulletClock;
@@ -110,11 +121,14 @@ int main(int, char *argv[]) {
                     //reset aliens
                     for(int i=0; i<NUMBER_OF_LINES; i++) {
                         for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
-                            Enemy alien(i, j, alienMinSpeed);
+                            Alien alien(i, j, alienMinSpeed);
                             alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50);
                             alienArray[i][j] = alien;
                         }
                     }
+
+					//reset Boss location
+					Boss.setLocation(WIDTH / 2, Boss.getSprite().getGlobalBounds().height / 2);
 
                     //reset ship location
                     myShip.setLocation(WIDTH/2, HEIGHT - myShip.getSprite().getGlobalBounds().height);
@@ -267,7 +281,7 @@ int main(int, char *argv[]) {
                 if (!alienArray[i][j].isAlive()) {
                     deadAliens++;
                 }
-                if (deadAliens == NUMBER_OF_ALIENS_PER_LINE*NUMBER_OF_LINES ) {
+                if (deadAliens == NUMBER_OF_ALIENS_PER_LINE*NUMBER_OF_LINES && (Boss.isAlive()==false || Boss.isActivated() == false)) {
                     if (!gameOver) {
                         //music.playReward();
                         winner = true;
@@ -281,6 +295,32 @@ int main(int, char *argv[]) {
         if(bullet.getSprite().getPosition().y < 0) {
             bullet.kill();
         }
+
+		//>>> Boss Collisions and movement <<<
+		// activate boss
+		if (t.asSeconds() > 0,5 && Boss.isActivated()== false) {
+			for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+				if (alienArray[0][j].getSprite().getPosition().y > 100) {
+					Boss.activate();
+				}
+			}
+		}
+
+		//Move Boss -- bouge tout les 1/ln(int aléatoire entre 1 et 10)
+		sf::Time tb = BossClock.getElapsedTime();
+		if (tb.asSeconds() > 1/(log2(rand()%(9)+1)) ){
+			Boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0.f);
+			BossClock.restart();
+		}
+
+		// test collisions Between boss and borders of the screen
+		if (Boss.isAlive() && Boss.isActivated() &&  (Boss.getSprite().getPosition().x +Boss.getSprite().getGlobalBounds().width > WIDTH - 50 || Boss.getSprite().getPosition().x < 20) ) {
+			bossDirection = -1 * bossDirection;
+			Boss.getSprite().move((alienMaxSpeed + alienMinSpeed*difficulty) * bossDirection * deltaTime, 0);
+		}
+	
+		// test collisions between boss and bullets
+
 
         //draw to screen
         if(!gameOver) {
@@ -296,6 +336,11 @@ int main(int, char *argv[]) {
                 //draw ship
                 myShip.draw(window);
             }
+
+			if (Boss.isAlive() && Boss.isActivated()) {
+				//draw Boss
+				Boss.draw(window);
+			}
 
             // Update the window
             window.display();
@@ -317,4 +362,3 @@ int main(int, char *argv[]) {
 
         return EXIT_SUCCESS;
 }
-// coucou hugo

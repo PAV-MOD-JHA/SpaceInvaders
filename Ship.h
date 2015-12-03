@@ -9,22 +9,14 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
+#include "Ufo.h"
 
-class Ship
+class Ship : public Ufo
 {
 public:
     //constructor sets ID number, loads sprite
     Ship(const int,float);
-    sf::Sprite & getSprite();
-    void setLocation(float, float);
-    void kill();
-    bool isAlive();
     void respawn();
-    void draw(sf::RenderWindow &win);
-private:
-    sf::Sprite sprite;
-    sf::Texture texture;
-    bool alive;
 };
 
 #endif
