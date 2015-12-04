@@ -22,9 +22,9 @@ int main()
 {
     const float shipSpeed = 200.f;
     const int alienMaxSpeed = 1000;
-    const int alienMinSpeed = 500;
+    const int alienMinSpeed = 800;
     int alienDownSpeed = 2;
-    const float bulletSpeed = 10.f;
+    const float bulletSpeed = 5.f;
     int globalDirection = +1;
 	int bossDirection = +1;
 
@@ -36,7 +36,7 @@ int main()
     int score = 0;
     const int fixedScoreAlien = 100;
     const int variableScoreAlien = 2;
-	const int bossPremium = 5;
+	const int bossPremium = 1000;
     int levelAchievedScore = 1000;
     string highscore="0";
 
@@ -173,7 +173,7 @@ int main()
     for(int i=0; i<NUMBER_OF_LINES; i++) {
         for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
             Alien alien(i, j, alienMinSpeed);
-            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 20);
+            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 50);
             alienArray[i][j] = alien;
         }
     }
@@ -196,6 +196,14 @@ int main()
     scoreLiveText.setCharacterSize(24);
     scoreLiveText.setColor(sf::Color::White);
     scoreLiveText.setPosition(90,10);
+
+    // Create life points display
+    sf::Text lifePointsText;
+    lifePointsText.setFont(font);
+    lifePointsText.setCharacterSize(24);
+    lifePointsText.setColor(sf::Color::White);
+    lifePointsText.setPosition(700,10);
+
 
     // Create barriers
     Barrier barrier1(sf::Vector2f(140, 480));
@@ -324,7 +332,7 @@ int main()
                 for(int i=0; i<NUMBER_OF_LINES; i++) {
                     for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
                         Alien alien(i, j, alienMinSpeed);
-                        alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 20);
+                        alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 50);
                         alienArray[i][j] = alien;
                     }
                 }
@@ -590,7 +598,7 @@ int main()
 				music.playExplosion();
 				boss.kill();
 				bullet.kill();
-				score += fixedScoreAlien*difficulty*bossPremium;
+				score += difficulty*bossPremium;
 				if (scoreClock.getElapsedTime().asSeconds() < 120)
 					score += (120 - scoreClock.getElapsedTime().asSeconds())*variableScoreAlien;
 				scoreLiveText.setString(std::to_string(score));
@@ -639,6 +647,10 @@ int main()
 
 				if (myShip.isAlive())
 					myShip.draw(window);
+
+                // Set remaining lives
+                lifePointsText.setString("Lives : " + to_string(myShip.getLifePoints()));
+                window.draw(lifePointsText);
 
                 window.draw(barrier1);
                 window.draw(barrier2);

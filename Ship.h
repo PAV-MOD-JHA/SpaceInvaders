@@ -19,6 +19,7 @@ class Ship : public Ufo
         void respawn();
         void getShot();
         bool isAlive();
+        int getLifePoints();
 
     private:
         int lifePoints;

@@ -7,10 +7,10 @@ Barrier::Barrier(sf::Vector2f origin)
 {
     this->origin = origin;
     
-    tiles[0][0] = new BarrierTile("resources/barrier_tl.png", "resources/barrier_tl_dmg.png");
-    tiles[0][1] = new BarrierTile("resources/barrier_tr.png", "resources/barrier_tr_dmg.png");
-    tiles[1][0] = new BarrierTile("resources/barrier_bl.png", "resources/barrier_bl_dmg.png");
-    tiles[1][1] = new BarrierTile("resources/barrier_br.png", "resources/barrier_br_dmg.png");
+    tiles[0][0] = new BarrierTile("resources/barrier_tl1.png", "resources/barrier_tl2.png", "resources/barrier_tl3.png");
+    tiles[0][1] = new BarrierTile("resources/barrier_tr1.png", "resources/barrier_tr2.png", "resources/barrier_tr3.png");
+    tiles[1][0] = new BarrierTile("resources/barrier_bl1.png", "resources/barrier_bl2.png", "resources/barrier_bl3.png");
+    tiles[1][1] = new BarrierTile("resources/barrier_br1.png", "resources/barrier_br2.png", "resources/barrier_br3.png");
     
     // Textures & Sprites
     sf::Vector2f pos(origin);

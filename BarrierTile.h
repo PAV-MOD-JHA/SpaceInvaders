@@ -7,12 +7,12 @@
 
 class BarrierTile : public sf::Drawable
 {
-    sf::Texture normal, damaged;
+    sf::Texture normal, hitOnce, hitTwice;
     void takeDamage();
     int health;
     
 public:
-    BarrierTile(const char *, const char *);
+    BarrierTile(const char *, const char *, const char *);
     bool strikeWith(Bullet&);
     bool knockedBy(Alien&);
     sf::Sprite sprite;

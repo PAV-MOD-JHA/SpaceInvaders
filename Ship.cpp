@@ -39,3 +39,7 @@ void Ship::respawn() {
 void Ship::getShot() {
     lifePoints -= 1;
 }
+
+int Ship::getLifePoints() {
+    return lifePoints;
+}

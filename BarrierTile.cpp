@@ -1,11 +1,12 @@
 #include "BarrierTile.h"
 
-BarrierTile::BarrierTile(const char * normalImage, const char * damagedImage)
+BarrierTile::BarrierTile(const char * normalImage, const char * hitOnceImage, const char * hitTwiceImage)
 {
     normal.loadFromFile(normalImage);
-    damaged.loadFromFile(damagedImage);
+    hitOnce.loadFromFile(hitOnceImage);
+    hitTwice.loadFromFile(hitTwiceImage);
     sprite.setTexture(normal);
-    health = 4;
+    health = 3;
 }
 
 bool BarrierTile::strikeWith(Bullet &bullet){
@@ -34,6 +35,8 @@ void BarrierTile::takeDamage()
     health--;
     if (!health)
         sprite.setColor(sf::Color::Transparent);
-    else if (health<=2)
-        sprite.setTexture(damaged);
+    else if (health == 1)
+        sprite.setTexture(hitTwice);
+    else if (health >= 2)
+        sprite.setTexture(hitOnce);
 }

@@ -9,12 +9,20 @@ set(SOURCE_FILES
         Bullet.h
         CollisionManager.cpp
         CollisionManager.h
-        Enemy.cpp
-        Enemy.h
+        Alien.cpp
+        Alien.h
+        Boss.cpp
+        Boss.h
         Ship.cpp
         Ship.h
         SoundManager.cpp
         SoundManager.h
+        Ufo.cpp
+        Ufo.h
+        Barrier.cpp
+        Barrier.h
+        BarrierTile.cpp
+        BarrierTile.h
         Animation.cpp
         Animation.hpp
         AnimatedSprite.cpp
