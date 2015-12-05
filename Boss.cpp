@@ -10,8 +10,8 @@ using namespace std;
 
 //constructor sets ID number, loads sprite
 Boss::Boss(const int id, float sp) {
-	//set alive
-	alive = true;
+	//set life points
+	lifePoints = 3;
 
 	//set non activated
 	activated = false;

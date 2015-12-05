@@ -28,10 +28,14 @@ void Ufo::setLocation(float xpos, float ypos) {
 
 void Ufo::kill() {
     alive = false;
+    lifePoints=0;
 }
 
 bool Ufo::isAlive() {
-    return alive;
+    if (this->getLifePoints() > 0)
+        return true;
+    else
+        return false;
 }
 
 void Ufo::draw(sf::RenderWindow &win) {
@@ -45,3 +49,10 @@ float Ufo::getSpeed() const {
     return speed;
 }
 
+int Ufo::getLifePoints () {
+    return lifePoints;
+}
+
+void Ufo::getShot() {
+    lifePoints -= 1;
+};

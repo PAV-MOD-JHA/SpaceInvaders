@@ -22,11 +22,15 @@ class Ufo
         bool isAlive();
         float getSpeed() const;
         void draw(sf::RenderWindow &win);
+        int getLifePoints();
+        void getShot ();
+
     protected:
         sf::Sprite sprite;
         sf::Texture texture;
         bool alive;
         float speed;
+        int lifePoints;
 };
 
 

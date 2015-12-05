@@ -2,7 +2,6 @@
 #include <fstream>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include <cstdlib>
 #include "Ship.h"
 #include "Alien.h"
 #include "Boss.h"
@@ -18,8 +17,7 @@ using namespace std;
 #define NUMBER_OF_ALIENS_PER_LINE 7
 #define NUMBER_OF_LINES 4
 
-int main()
-{
+int main() {
     const float shipSpeed = 200.f;
     const int alienMaxSpeed = 1000;
     const int alienMinSpeed = 800;
@@ -46,7 +44,7 @@ int main()
 
     //start background music
     SoundManager music;
-    //music.playBackgroundMusic();
+    music.playBackgroundMusic();
 
     // Create background
     sf::Sprite back;
@@ -318,7 +316,6 @@ int main()
                 if (gameOver) {
                     play = false;
                 }
-
             }
         }
 
@@ -328,6 +325,7 @@ int main()
         // If not ready to play
         if (!play) {
 
+            // Reset the sprites
             if (gameOver) {
                 for(int i=0; i<NUMBER_OF_LINES; i++) {
                     for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -343,6 +341,7 @@ int main()
 				boss.setLocation(WIDTH / 2, boss.getSprite().getGlobalBounds().height / 2 + 50);
 
 				//Reset ship
+                myShip.respawn();
 				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
                 globalDirection = 1;
@@ -560,7 +559,7 @@ int main()
                     if (CollisionManager::collidesWith(bullet, alienArray[i][j]) && alienArray[i][j].isAlive() &&
                         bullet.isAlive()) {
                         music.playExplosion();
-                        alienArray[i][j].kill();
+                        alienArray[i][j].getShot();
                         bullet.kill();
                         score += fixedScoreAlien*difficulty;
                         if (scoreClock.getElapsedTime().asSeconds() < 120)
@@ -595,10 +594,13 @@ int main()
 	
 			// test collisions between boss and bullets
 			if (CollisionManager::collidesWith(bullet, boss) && boss.isAlive() && boss.isActivated() &&	bullet.isAlive()) {
-				music.playExplosion();
-				boss.kill();
+                music.playExplosion();
+                boss.getShot();
+                if (boss.getLifePoints() == 0) {
+                    boss.kill();
+                    score += difficulty * bossPremium;
+                }
 				bullet.kill();
-				score += difficulty*bossPremium;
 				if (scoreClock.getElapsedTime().asSeconds() < 120)
 					score += (120 - scoreClock.getElapsedTime().asSeconds())*variableScoreAlien;
 				scoreLiveText.setString(std::to_string(score));

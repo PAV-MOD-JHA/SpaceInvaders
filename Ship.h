@@ -18,11 +18,7 @@ class Ship : public Ufo
         Ship(const int,float);
         void respawn();
         void getShot();
-        bool isAlive();
-        int getLifePoints();
 
-    private:
-        int lifePoints;
 };
 
 #endif

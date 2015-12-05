@@ -10,8 +10,8 @@ using namespace std;
 
 //constructor sets ID number, loads sprite
 Alien::Alien(int lineNumber, const int id, float sp) {
-    //set alive
-    alive = true;
+    //set life points
+    lifePoints = 1;
 
     //set speed
     speed = sp;
