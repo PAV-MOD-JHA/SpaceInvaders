@@ -549,6 +549,19 @@ int main() {
             }
 
 			// Alien Fire bullets
+			//sf::Time afc = alienFireClock.getElapsedTime();
+			//if (afc.asSeconds() > 1.0) {
+			//	int columnShooting = rand() % NUMBER_OF_ALIENS_PER_LINE;
+			//	if (!bulletArray[columnShooting].isAlive() && !gameOver) {
+			//		bulletArray[columnShooting].spawn(true);
+			//		bulletArray[columnShooting].setLocation(
+			//			alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().x + 13,
+			//			alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().y + 13);
+			//		music.playLazer();
+			//	}
+			//}
+
+			// Alien Fire bullets
 			sf::Time afc = alienFireClock.getElapsedTime();
 			float shootingTrigger = rand() % 3+1;
 			if (afc.asSeconds() > (shootingTrigger/log2(difficulty))){
