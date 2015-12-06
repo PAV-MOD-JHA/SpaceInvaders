@@ -345,6 +345,9 @@ int main() {
                     barrier4.respawn();
 
                     globalDirection = 1;
+                    score = 0;
+                    scoreLiveText.setString("0");
+
                 }
             }
 
@@ -400,6 +403,9 @@ int main() {
                 barrier4.respawn();
 
                 globalDirection = 1;
+                score = 0;
+                scoreLiveText.setString("0");
+
             }
             gameOver = false;
             winner = false;
