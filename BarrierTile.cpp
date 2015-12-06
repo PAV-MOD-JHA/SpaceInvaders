@@ -44,4 +44,6 @@ void BarrierTile::takeDamage()
 void BarrierTile::respawn() {
     health = 3;
     sprite.setTexture(normal);
+    sprite.setColor(sf::Color::White);
+
 }

@@ -309,9 +309,42 @@ int main() {
                 window.close();
 
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-                play = false;
                 if (gameOver) {
                     window.close();
+                }
+                else {
+                    play = false;
+
+                    // Reset aliens
+                    for(int i=0; i<NUMBER_OF_LINES; i++) {
+                        for(int j=0; j<NUMBER_OF_ALIENS_PER_LINE; j++) {
+                            Alien alien(i, j, alienMinSpeed);
+                            alien.setLocation(j * 50 + 150, alien.getSprite().getGlobalBounds().height / 2 + i*50 + 50);
+                            alienArray[i][j] = alien;
+                        }
+                    }
+
+                    // Reset Boss location
+                    Boss boss2(0, alienMinSpeed);
+                    boss = boss2;
+                    boss.setLocation(WIDTH / 2, boss.getSprite().getGlobalBounds().height / 2 + 50);
+
+                    // Reset ship
+                    myShip.respawn();
+                    myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
+
+                    // Reset Alien bullets
+                    for (int j=0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+                        bulletArray[j].kill();
+                    }
+
+                    // Reset barriers
+                    barrier1.respawn();
+                    barrier2.respawn();
+                    barrier3.respawn();
+                    barrier4.respawn();
+
+                    globalDirection = 1;
                 }
             }
 
