@@ -160,7 +160,7 @@ int main() {
 
     // ----------------------- CREATE GAME SCREEN ------------------------- //
 
-    // Create a bullet
+    // Create a bullet for our ship
     Bullet bullet(0,bulletSpeed);
 
 	// Create an array for the bullets of the aliens
@@ -209,7 +209,6 @@ int main() {
     lifePointsText.setCharacterSize(24);
     lifePointsText.setColor(sf::Color::White);
     lifePointsText.setPosition(700,10);
-
 
     // Create barriers
     Barrier barrier1(sf::Vector2f(140, 480));
@@ -290,7 +289,7 @@ int main() {
 
 	// Clock for alien fire
 	sf::Clock alienFireClock;
-	alienClock.restart().asSeconds();
+    alienFireClock.restart().asSeconds();
 
     // Clock for score
     sf::Clock scoreClock;
@@ -364,13 +363,11 @@ int main() {
 				//Reset ship
                 myShip.respawn();
 				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
+
                 globalDirection = 1;
             }
             gameOver = false;
             winner = false;
-
-            // Get cursor position
-            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
             // Refresh high score
             ifstream highscoreFile ("highscores.txt");
@@ -386,6 +383,8 @@ int main() {
             }
             highScoreText.setString("Highscore : "+highscore);
 
+            // Get cursor position
+            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 
             // Click on Start
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mousePosition.x > startText.getPosition().x -5 &&
@@ -468,7 +467,7 @@ int main() {
                 }
             }
 
-            //move aliens
+            // Move aliens
             sf::Time t = alienClock.getElapsedTime();
             if (t.asSeconds() > 1 / log2(alienDownSpeed)) {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -564,13 +563,11 @@ int main() {
 			// Alien Fire bullets
 			sf::Time afc = alienFireClock.getElapsedTime();
 			float shootingTrigger = rand() % 3+1;
-			if (afc.asSeconds() > (shootingTrigger/log2(difficulty))){
+			if (afc.asSeconds() > (shootingTrigger/log2(difficulty+1))){
 				int columnShooting = rand() % NUMBER_OF_ALIENS_PER_LINE;
 				if (!bulletArray[columnShooting].isAlive() && !gameOver) {
 					bulletArray[columnShooting].spawn(true);
-					bulletArray[columnShooting].setLocation(
-						alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().x + 13,
-						alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().y + 13);
+					bulletArray[columnShooting].setLocation(alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().x + 13, alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().y + 13);
 					music.playLazer();
 					alienFireClock.restart();
 					shootingTrigger = rand() % 3+1;
@@ -647,9 +644,6 @@ int main() {
 					bulletArray[j].kill();
 				}
 			}
-
-
-			//>>> Boss Collisions and movement <<<
 
 			// Activate boss
 			if (!boss.isActivated()) {
@@ -745,6 +739,8 @@ int main() {
 
 				if (myShip.isAlive())
 					myShip.draw(window);
+                else
+                    gameOver = true;
 
                 // Set remaining lives
                 lifePointsText.setString("Lives : " + to_string(myShip.getLifePoints()));

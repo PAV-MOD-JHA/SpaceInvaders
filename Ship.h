@@ -17,8 +17,6 @@ class Ship : public Ufo
         //constructor sets ID number, loads sprite
         Ship(const int,float);
         void respawn();
-        void getShot();
-
 };
 
 #endif
