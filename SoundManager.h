@@ -22,15 +22,18 @@ public:
     void playBackgroundMusic();
     void pauseBackgroundMusic();
     void playLazer();
-    void playExplosion();
+    void playAlienExplosion();
+    void playShipExplosion();
     void playReward();
 private:
     sf::SoundBuffer lazerBuffer;
-    sf::SoundBuffer explosionBuffer;
+    sf::SoundBuffer alienExplosionBuffer;
+    sf::SoundBuffer shipExplosionBuffer;
     sf::SoundBuffer rewardBuffer;
     sf::Music music;
     sf::Sound lazerSound;
-    sf::Sound explosionSound;
+    sf::Sound alienSound;
+    sf::Sound shipSound;
     sf::Sound rewardSound;
 };
 

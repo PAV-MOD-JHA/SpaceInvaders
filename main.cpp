@@ -279,6 +279,10 @@ int main() {
     sf::Clock alienClock;
     alienClock.restart().asSeconds();
 
+    // Clock for alien animation
+    sf::Clock alienAnimationClock;
+    alienAnimationClock.restart().asSeconds();
+
 	//Clock for Boss
 	sf::Clock bossClock;
 	bossClock.restart().asSeconds();
@@ -507,6 +511,18 @@ int main() {
                 }
             }
 
+
+            // Animate aliens
+            sf::Time ta = alienAnimationClock.getElapsedTime();
+            if (ta.asSeconds() > 0.5) {
+                for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
+                    for (int i = 0; i < NUMBER_OF_LINES; i++) {
+                        alienArray[i][j].switchSprite();
+                    }
+                    alienAnimationClock.restart();
+                }
+            }
+
             // Move aliens
             sf::Time t = alienClock.getElapsedTime();
             if (t.asSeconds() > 1 / log2(alienDownSpeed)) {
@@ -629,7 +645,7 @@ int main() {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                     if (CollisionManager::collidesWith(myShip, alienArray[i][j]) && alienArray[i][j].isAlive()) {
                         if (!gameOver)
-                            music.playExplosion();
+                            music.playShipExplosion();
                         myShip.kill();
                         winner = false;
                         gameOver = true;
@@ -642,7 +658,7 @@ int main() {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                     if (alienArray[i][j].getSprite().getPosition().y + alienArray[i][j].getSprite().getGlobalBounds().height > HEIGHT && alienArray[i][j].isAlive()) {
                         if (!gameOver)
-                            music.playExplosion();
+                            music.playAlienExplosion();
                         winner = false;
                         gameOver = true;
                     }
@@ -664,7 +680,7 @@ int main() {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
                     if (CollisionManager::collidesWith(bullet, alienArray[i][j]) && alienArray[i][j].isAlive() &&
                         bullet.isAlive()) {
-                        music.playExplosion();
+                        music.playAlienExplosion();
                         alienArray[i][j].getShot();
                         bullet.kill();
                         score += fixedScoreAlien*difficulty;
@@ -678,7 +694,7 @@ int main() {
 			// Test collisions between bulletAlien and ship
 			for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
 				if (CollisionManager::collidesWith(bulletArray[j], myShip) && bulletArray[j].isAlive() && myShip.isAlive()) {
-					music.playExplosion();
+					music.playShipExplosion();
 					myShip.getShot();
 					myShip.setLocation(WIDTH / 2 - myShip.getSprite().getGlobalBounds().height / 2, HEIGHT - myShip.getSprite().getGlobalBounds().height - 20);
 					bulletArray[j].kill();
@@ -709,7 +725,7 @@ int main() {
 
 			// Test collisions between boss and bullets
 			if (CollisionManager::collidesWith(bullet, boss) && boss.isAlive() && boss.isActivated() &&	bullet.isAlive()) {
-                music.playExplosion();
+                music.playAlienExplosion();
                 boss.getShot();
                 if (!boss.isAlive()) {
                     boss.kill();
