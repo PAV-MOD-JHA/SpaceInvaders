@@ -17,8 +17,11 @@ class Alien: public Ufo
         //constructor sets ID number, loads sprite
         Alien(){};
         Alien(const int, int,float);
+        void switchSprite();
 
 	protected:
+        int line;
+        int spriteNumber;
   
 };
 

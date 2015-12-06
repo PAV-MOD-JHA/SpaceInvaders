@@ -22,11 +22,7 @@ set(SOURCE_FILES
         Barrier.cpp
         Barrier.h
         BarrierTile.cpp
-        BarrierTile.h
-        Animation.cpp
-        Animation.hpp
-        AnimatedSprite.cpp
-        AnimatedSprite.hpp)
+        BarrierTile.h)
 
 add_executable(SpaceInvaders ${SOURCE_FILES})
 
