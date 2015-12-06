@@ -16,6 +16,7 @@ public:
     bool strikeWith(Bullet&);
     bool knockedBy(Alien&);
     virtual void draw(sf::RenderTarget&, sf::RenderStates) const;
+    void respawn();
 };
 
 #endif

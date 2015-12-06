@@ -45,7 +45,7 @@ int main() {
 
     //start background music
     SoundManager music;
-    music.playBackgroundMusic();
+    //music.playBackgroundMusic();
 
     // Create background
     sf::Sprite back;
@@ -238,7 +238,7 @@ int main() {
     gameoverText.setString("GAME OVER!");
     gameoverText.setCharacterSize(100);
     gameoverText.setColor(sf::Color::White);
-    gameoverText.setPosition(WIDTH/2 - gameoverText.getLocalBounds().width/2, gameoverText.getLocalBounds().height - 20);
+    gameoverText.setPosition(WIDTH/2 - gameoverText.getLocalBounds().width/2, 150);
 
     sf::Text youLoseText;
     youLoseText.setFont(font);
@@ -360,9 +360,11 @@ int main() {
 					bulletArray[j].kill();
 				}
 
-				//Reset ship
-                myShip.respawn();
-				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
+                // Reset barriers
+                barrier1.respawn();
+                barrier2.respawn();
+                barrier3.respawn();
+                barrier4.respawn();
 
                 globalDirection = 1;
             }
@@ -371,7 +373,6 @@ int main() {
 
             // Refresh high score
             ifstream highscoreFile ("highscores.txt");
-            string line;
             if (highscoreFile.is_open()) {
                 while (getline(highscoreFile,line)) {
                     highscore = line;

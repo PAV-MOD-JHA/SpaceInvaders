@@ -40,3 +40,8 @@ void BarrierTile::takeDamage()
     else if (health >= 2)
         sprite.setTexture(hitOnce);
 }
+
+void BarrierTile::respawn() {
+    health = 3;
+    sprite.setTexture(normal);
+}

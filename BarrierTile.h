@@ -17,6 +17,7 @@ public:
     bool knockedBy(Alien&);
     sf::Sprite sprite;
     virtual void draw(sf::RenderTarget&, sf::RenderStates) const;
+    void respawn();
 };
 
 #endif

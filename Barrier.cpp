@@ -50,3 +50,10 @@ void Barrier::draw(sf::RenderTarget &target, sf::RenderStates states) const
             tiles[r][c]->draw(target, states);
 }
 
+void Barrier::respawn() {
+    for (int r = 0; r < 2; r++) {
+        for (int c = 0; c < 2; c++) {
+            tiles[r][c]->respawn();
+        }
+    }
+}
