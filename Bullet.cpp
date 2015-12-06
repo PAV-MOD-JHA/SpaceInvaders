@@ -7,11 +7,14 @@
 #include <stdexcept>
 using namespace std;
 
-Bullet::Bullet(const int id,float speed)
+Bullet::Bullet(const int id,float sp)
 {
     //alive
     alive = false;
     
+	//set speed
+	speed = sp;
+
     //load a sprite
     if(!texture.loadFromFile("resources/sprite.png"))
         throw invalid_argument("Bullet not foundd!");
@@ -45,6 +48,11 @@ bool Bullet::isAlive()
 void Bullet::spawn(bool bul)
 {
     alive=bul;
+}
+
+float Bullet::getSpeed()
+{
+	return speed;
 }
 
 void Bullet::draw(sf::RenderWindow &win)

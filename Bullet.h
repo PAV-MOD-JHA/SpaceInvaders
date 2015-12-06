@@ -15,18 +15,21 @@ class Bullet
 {
 public:
     //constructor sets ID number, loads sprite
-    Bullet(const int,float);
+	Bullet(){};
+	Bullet(const int,float);
     sf::Sprite & getSprite();
     void setLocation(float,float);
     void kill();
     bool isAlive();
     void spawn(bool);
+	float getSpeed();
     //draw the sprite
     void draw(sf::RenderWindow &win);
 private:
     sf::Sprite sprite;
     sf::Texture texture;
     bool alive;
+	float speed;
 
 };
 

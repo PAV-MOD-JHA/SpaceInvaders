@@ -4,36 +4,36 @@
 
 #include "CollisionManager.h"
 
-bool CollisionManager::collidesWith(Ship &obj1, Enemy &obj2)
+bool CollisionManager::collidesWith(Ufo &obj1, Ufo &obj2)
 {
-    //get the bounding box of the ship
-    sf::FloatRect ship;
+    //get the bounding box of the first Ufo
+    sf::FloatRect ufo1;
     //top left
-    ship.left = obj1.getSprite().getPosition().x+10;
-    ship.top = obj1.getSprite().getPosition().y+10;
+    ufo1.left = obj1.getSprite().getPosition().x+10;
+    ufo1.top = obj1.getSprite().getPosition().y+10;
     //bottom right
-    ship.width = obj1.getSprite().getGlobalBounds().width-10;
-    ship.height = obj1.getSprite().getGlobalBounds().height-10;
+    ufo1.width = obj1.getSprite().getGlobalBounds().width-10;
+    ufo1.height = obj1.getSprite().getGlobalBounds().height-10;
     
-    //get the bounding box of the alien
-    sf::FloatRect alien;
+    //get the bounding box of the ufo2
+    sf::FloatRect ufo2;
     //top left
-    alien.left = obj2.getSprite().getPosition().x;
-    alien.top = obj2.getSprite().getPosition().y;
+    ufo2.left = obj2.getSprite().getPosition().x;
+    ufo2.top = obj2.getSprite().getPosition().y;
     //bottom right
-    alien.width = obj2.getSprite().getGlobalBounds().width;
-    alien.height =obj2.getSprite().getGlobalBounds().height;
+    ufo2.width = obj2.getSprite().getGlobalBounds().width;
+    ufo2.height =obj2.getSprite().getGlobalBounds().height;
 
-    //std::cout << "Ship left: " << ship.left << " " << "Ship top: " << ship.top << std::endl;
-    //std::cout << "Alien left: " << alien.left << " " << "Alien top: " << alien.top << std::endl;
+    //std::cout << "ufo1 left: " << ufo1.left << " " << "ufo1 top: " << ufo1.top << std::endl;
+    //std::cout << "ufo2 left: " << ufo2.left << " " << "ufo2 top: " << ufo2.top << std::endl;
         
-    return ship.intersects(alien);
+    return ufo1.intersects(ufo2);
     
 }
 
-bool CollisionManager::collidesWith(Bullet &obj1, Enemy &obj2)
+bool CollisionManager::collidesWith(Bullet &obj1, Ufo &obj2)
 {
-    //get the bounding box of the ship
+    //get the bounding box of the ufo1
     sf::FloatRect bullet;
     //top left
     bullet.left = obj1.getSprite().getPosition().x+10;
@@ -42,18 +42,18 @@ bool CollisionManager::collidesWith(Bullet &obj1, Enemy &obj2)
     bullet.width = obj1.getSprite().getGlobalBounds().width-10;
     bullet.height = obj1.getSprite().getGlobalBounds().height-10;
     
-    //get the bounding box of the alien
-    sf::FloatRect alien;
+    //get the bounding box of the ufo
+    sf::FloatRect ufo;
     //top left
-    alien.left = obj2.getSprite().getPosition().x;
-    alien.top = obj2.getSprite().getPosition().y;
+    ufo.left = obj2.getSprite().getPosition().x;
+    ufo.top = obj2.getSprite().getPosition().y;
     //bottom right
-    alien.width = obj2.getSprite().getGlobalBounds().width;
-    alien.height =obj2.getSprite().getGlobalBounds().height;
+    ufo.width = obj2.getSprite().getGlobalBounds().width;
+    ufo.height =obj2.getSprite().getGlobalBounds().height;
     
-    //std::cout << "Ship left: " << ship.left << " " << "Ship top: " << ship.top << std::endl;
-    //std::cout << "Alien left: " << alien.left << " " << "Alien top: " << alien.top << std::endl;
+    //std::cout << "ufo1 left: " << ufo1.left << " " << "ufo1 top: " << ufo1.top << std::endl;
+    //std::cout << "ufo2 left: " << ufo2.left << " " << "ufo2 top: " << ufo2.top << std::endl;
     
-    return bullet.intersects(alien);
+    return bullet.intersects(ufo);
     
 }

@@ -1,9 +1,9 @@
 //
-//  Ship.h
+//  Alien.h
 //
 
-#ifndef SpriteMove_Ship_h
-#define SpriteMove_Ship_h
+#ifndef SpriteMove_Alien_h
+#define SpriteMove_Alien_h
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -11,14 +11,16 @@
 #include <string>
 #include "Ufo.h"
 
-class Ship : public Ufo
+class Alien: public Ufo
 {
     public:
         //constructor sets ID number, loads sprite
-        Ship(const int,float);
-        void respawn();
-        //void getShot();
+        Alien(){};
+        Alien(const int, int,float);
 
+	protected:
+  
 };
+
 
 #endif
