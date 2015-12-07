@@ -634,7 +634,7 @@ int main() {
 			float shootingTrigger = rand() % 3+1;
 			if (afc.asSeconds() > (shootingTrigger/log2(difficulty+1))){
 				int columnShooting = rand() % NUMBER_OF_ALIENS_PER_LINE;
-				if (!bulletArray[columnShooting].isAlive() && !gameOver) {
+				if (!bulletArray[columnShooting].isAlive() && !gameOver && alienArray[lastAliveBottom[columnShooting]][columnShooting].isAlive()) {
 					bulletArray[columnShooting].spawn(true);
 					bulletArray[columnShooting].setLocation(alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().x + 13, alienArray[lastAliveBottom[columnShooting]][columnShooting].getSprite().getPosition().y + 13);
 					music.playLazer();
