@@ -170,6 +170,9 @@ int main() {
 		bulletArray[j] = bulletAlien;
 	}
 
+    // Create a bullet for the boss
+    Bullet bulletBoss(0,bulletSpeed);
+
     // Create the ship
     Ship myShip(0,shipSpeed);
     myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
@@ -291,6 +294,10 @@ int main() {
     sf::Clock bulletClock;
     bulletClock.restart().asSeconds();
 
+    // Clock for boss bullet
+    sf::Clock bossFireClock;
+    bossFireClock.restart().asSeconds();
+
 	// Clock for alien fire
 	sf::Clock alienFireClock;
     alienFireClock.restart().asSeconds();
@@ -395,10 +402,16 @@ int main() {
                 myShip.respawn();
 				myShip.setLocation(WIDTH/2 - myShip.getSprite().getGlobalBounds().height/2, HEIGHT - myShip.getSprite().getGlobalBounds().height-20);
 
+                // Reset bullet
+                bullet.kill();
+
 				// Reset Alien bullets
 				for (int j=0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
 					bulletArray[j].kill();
 				}
+
+                // Reset boss bullet
+                bulletBoss.kill();
 
                 // Reset barriers
                 barrier1.respawn();
@@ -640,6 +653,22 @@ int main() {
 				}
 			}
 
+            // Boss bullet
+            if (boss.isAlive() && boss.isActivated() && !bulletBoss.isAlive()) {
+                sf::Time bfc = bossFireClock.getElapsedTime();
+                if (bfc.asSeconds() > 1) {
+                    bulletBoss.spawn(true);
+                    bulletBoss.setLocation(boss.getSprite().getPosition().x + 28,
+                                           boss.getSprite().getPosition().y + 20);
+                    music.playLazer();
+                    bossFireClock.restart();
+                }
+            }
+            if (bulletBoss.isAlive() && !gameOver) {
+                bulletBoss.draw(window);
+                bulletBoss.getSprite().move(0.f, bulletBoss.getSpeed()+log2(difficulty));
+            }
+
             // Test collisions between aliens and ship
             for (int i = 0; i < NUMBER_OF_LINES; i++) {
                 for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -701,6 +730,14 @@ int main() {
 				}
 			}
 
+            // Test collision between bossBullet and ship
+            if (CollisionManager::collidesWith(bulletBoss, myShip) && bulletBoss.isAlive() && myShip.isAlive()) {
+                music.playShipExplosion();
+                myShip.getShot();
+                myShip.setLocation(WIDTH / 2 - myShip.getSprite().getGlobalBounds().height / 2, HEIGHT - myShip.getSprite().getGlobalBounds().height - 20);
+                bulletBoss.kill();
+            }
+
 			// Activate boss
 			if (!boss.isActivated()) {
 				for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
@@ -749,19 +786,30 @@ int main() {
 				}
 			}
 
+            // Test collision bulletBoss and boundary
+            if (bulletBoss.getSprite().getPosition().y > 600) {
+                bulletBoss.kill();
+            }
+
             // Test collisions between barriers and bullets
             barrier1.strikeWith(bullet);
             barrier2.strikeWith(bullet);
             barrier3.strikeWith(bullet);
             barrier4.strikeWith(bullet);
 
-			// Test collisions between barriers and bullets
+			// Test collisions between barriers and alien bullets
 			for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
 				barrier1.strikeWith(bulletArray[j]);
 				barrier2.strikeWith(bulletArray[j]);
 				barrier3.strikeWith(bulletArray[j]);
 				barrier4.strikeWith(bulletArray[j]);
 			}
+
+            // Test collisions between barriers and boss bullets
+            barrier1.strikeWith(bulletBoss);
+            barrier2.strikeWith(bulletBoss);
+            barrier3.strikeWith(bulletBoss);
+            barrier4.strikeWith(bulletBoss);
 
 			// Test for a winner
 			int deadAliens = 0;
