@@ -41,3 +41,6 @@ bool Boss::isActivated() {
 	return activated;
 }
 
+void Boss::getSmaller() {
+	sprite.scale(sf::Vector2f(0.5, 0.5));
+};

@@ -20,6 +20,7 @@ public:
 	void activate();
 	void deactivate();
 	bool isActivated();
+	void getSmaller();
 
 protected:
 	bool activated;

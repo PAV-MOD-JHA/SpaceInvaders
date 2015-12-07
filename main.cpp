@@ -764,6 +764,7 @@ int main() {
 			if (CollisionManager::collidesWith(bullet, boss) && boss.isAlive() && boss.isActivated() &&	bullet.isAlive()) {
                 music.playAlienExplosion();
                 boss.getShot();
+                boss.getSmaller();
                 if (!boss.isAlive()) {
                     boss.kill();
                     score += difficulty * bossPremium;
