@@ -161,17 +161,17 @@ int main() {
     // ----------------------- CREATE GAME SCREEN ------------------------- //
 
     // Create a bullet for our ship
-    Bullet bullet(0,bulletSpeed);
+    Bullet bullet(bulletSpeed);
 
 	// Create an array for the bullets of the aliens
 	Bullet bulletArray[NUMBER_OF_ALIENS_PER_LINE];
 	for (int j = 0; j < NUMBER_OF_ALIENS_PER_LINE; j++) {
-		Bullet bulletAlien(j, bulletSpeed);
+		Bullet bulletAlien( bulletSpeed);
 		bulletArray[j] = bulletAlien;
 	}
 
     // Create a bullet for the boss
-    Bullet bulletBoss(0,bulletSpeed);
+    Bullet bulletBoss(bulletSpeed);
 
     // Create the ship
     Ship myShip(0,shipSpeed);

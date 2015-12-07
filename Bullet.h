@@ -16,7 +16,7 @@ class Bullet
 public:
     Bullet() {};
     //constructor sets ID number, loads sprite
-	Bullet(const int,float);
+	Bullet(float);
     sf::Sprite & getSprite();
     void setLocation(float,float);
     void kill();

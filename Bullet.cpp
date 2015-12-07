@@ -7,7 +7,7 @@
 #include <stdexcept>
 using namespace std;
 
-Bullet::Bullet(const int id,float sp)
+Bullet::Bullet(float sp)
 {
     //alive
     alive = false;
