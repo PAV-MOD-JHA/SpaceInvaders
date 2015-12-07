@@ -23,7 +23,7 @@ int main() {
     const int alienMaxSpeed = 1000;
     const int alienMinSpeed = 800;
     int alienDownSpeed = 2;
-    const float bulletSpeed = 5.f;
+    const float bulletSpeed = 4.f;
     int globalDirection = +1;
 	int bossDirection = +1;
 
